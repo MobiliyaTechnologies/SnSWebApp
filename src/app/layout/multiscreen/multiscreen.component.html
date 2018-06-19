@@ -1,0 +1,62 @@
+<div class="container-fluid">
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+  <div class="addvideo">
+    <h5>Multiscreen View</h5>
+  </div>
+</div>
+
+<div class="background scrollable">
+  <div *ngIf="isList; else noList">
+    <br>
+    <div class="row ImageDivRow">
+      <div class="col-sm-6 col-xs-12 ImageDivCol" style="height:30vh" *ngFor="let cam of liveCameras">
+        <div class="col-xs-12 imageDiv" id="{{cam.camId}}">
+          <div class="middle">
+            <a id="{{cam.camId}}_fullscreen" class="fullscreen-logo" role="button" title="Toggle fullscreen" (click)="selectedScreen(cam.camId)">
+              <i class="glyphicon glyphicon-fullscreen">
+              </i>
+            </a>
+            <div class="middle1" style="z-index:5;" *ngIf="fullScreenMode">
+              <div class="col-sm-12">
+                <div class="col-sm-12">
+                  <div class="row textHeadings key">
+                    <p>
+                      <b>COUNT PER MARKER</b>
+                    </p>
+                  </div>
+                  <div *ngFor="let marker of markerCountArr">
+                    <div class="row textValues value">
+                      {{marker.markerName}} : {{marker.count}}
+                    </div>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img id="{{cam.camId}}_img" class="cameraPreview" [src]="imgSrc">
+        </div>
+        <div class="camName">
+          <h6>{{cam.deviceName}}</h6>
+        </div>
+      </div>
+    </div>
+    <br>
+  </div>
+  <ng-template #noList>
+    <div class="col-sm-12 center">
+     
+
+<div class="displayDiv2">
+              <img src="../../../assets/img/web/unidentified-empty.png"><br><br>
+
+               <p class="displayText">No Live Camera Streaming Available.</p>
+
+            </div>
+      
+
+    </div>
+  </ng-template>
+</div>
+
+<div

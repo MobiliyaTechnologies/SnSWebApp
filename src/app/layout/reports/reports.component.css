@@ -1,0 +1,43 @@
+.devicemenu{
+    border: 1px solid #e7e7e7;
+    min-height: 70vh;
+    background-color: white;
+    padding:0%;
+}
+.background{
+    border: 1px solid #e7e7e7;
+    min-height: 80vh;
+    background-color: white;
+    padding:0%;
+    border: none;
+    border-radius: 5px;
+}
+.addaggregator{
+    float:left;
+    color:white;
+}
+.aggregatorsDiv{
+    float:right;
+}
+.text{
+    font-size: 12px;
+    color: rgba(118, 118, 118, 1);
+}
+.center{
+    text-align: center !important;
+}
+.overflow-text{
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+button:hover
+{
+    background-color:#00A86B;
+    color:white;
+}
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948;
+}
+.ng-invalid:not(form)  {
+    border-left: 5px solid #a94442;
+}

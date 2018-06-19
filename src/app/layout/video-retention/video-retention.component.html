@@ -1,0 +1,228 @@
+<div class="container-fluid ">
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+  <div class="row">
+    <div class="addvideo">
+      <h5>Video Retention</h5>
+    </div>
+    <div class="videoDiv">
+      <button type="submit" class="btn btn-primary" id="connectCamera" (click)="addVideo()"> NEW VIDEO </button>
+    </div>
+  </div>
+
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+
+
+  <form class="form" id="myForm" #indexForm="ngForm">
+    <div class="row background" *ngIf="isNewVideo">
+      <div class="col-sm-12 cameraData">
+        <div class="col-sm-12">
+          <br>
+          <div class="row">
+            <div class="col-sm-12">
+              <button type="button" class="btn btn-primary" (click)="onCancel()">
+                BACK
+              </button>
+            </div>
+          </div>
+          <br>
+          <br>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-sm-12 col-xs-12">
+                <p>
+                  <b>VIDEO NAME</b>
+                </p>
+                <input type="text" class="form-control " id="videoName" [(ngModel)]="videoName" name="videoName" required>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-sm-12 col-xs-12">
+                <p>
+                  <b>CAMERA</b>
+                </p>
+                <select id="cameraName" data-style="btn-info" class="form-control" [(ngModel)]="cameraName" name="cameraName" (change)="onChange($event.target.value)"
+                  required>
+                  <option *ngFor="let camera of cameraList;" value={{camera.deviceName}}>{{camera.deviceName}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <br>
+          <!-- <div class="row">
+            <div class="form-group">
+              <div class="col-sm-6 col-xs-12">
+                <p>
+                  <b>TIME DURATION (IN MINUTES)</b>
+                </p>
+                <input type="number" min="1" max="60" id="timeDuration" [(ngModel)]="timeDuration" name="timeDuration" required>
+              </div>
+              <div class="col-sm-6 col-xs-12">
+                <p>
+                  <b>START TIME (HOURS:MINUTES)</b>
+                </p>
+                <input type="time" min="00:01" max="24:00" id="Time" [(ngModel)]="Time" name="Time" required>
+              </div>
+            </div>
+          </div> -->
+          <br>
+          <div class="row">
+            <div class="form-group">
+              <div class="col-sm-6 col-xs-12">
+                <p>
+                  <b>RETENTION PERIOD </b>
+                </p>
+                 <select id="costTest" class="col-sm-4"  data-style="btn-info" class="form-control form-control-modal" name="form_select" (change)="calculateCost($event.target.value)">
+                <option value ="0"> 1 Day</option>
+                <option value ="1"> 1 Week</option>
+                <option value ="2"> 1 Month</option>
+                <option value ="3"> 1 Quarter</option>
+                <option value ="4"> 1 Year</option>
+              </select>
+              </div>
+              <div class="col-sm-6 col-xs-12">
+                <p>
+                  <b>DATE</b>
+                </p>
+                <input type="date" id="Date" [(ngModel)]="Date" name="Date" (mouseenter)="meEvent($event)" required>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+        
+              <div class="col-sm-12">
+                <!-- <button type="button" class="btn btn-primary" [disabled]="!indexForm.form.valid" (click)="onSubmit()">
+                  SUBMIT
+                </button> -->
+                <button type="button" class="btn btn-primary" [disabled]="!indexForm.form.valid" (click)="onSubmit()" id="checkCosting1"
+                  data-toggle="modal" data-target="#checkCosting">
+                  SUBMIT
+                </button>
+
+                <button type="button" class="btn btn-primary" id="cancel" (click)="onCancel()">
+                  CANCEL
+                </button>
+              </div>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+
+  <div class="row background scrollable" *ngIf="isVideoList">
+    <div *ngIf="isList; else noList">
+    <div class="col-sm-12">
+      <br>
+      <div class="col-sm-5">
+        <span style="float:right;padding-top:4%;"><b> Select Camera : </b></span>
+      </div>
+      <div class="col-sm-4">
+        <select style="margin-left:-4%;" id="camIdName" data-style="btn-info" class="form-control" [(ngModel)]="camIdName" name="camIdName"
+          (change)="onChangeCamera($event.target.value)">
+             <option *ngFor="let camera of cameras;" value={{camera.deviceName}}> <b> {{camera.deviceName}} </b></option> 
+          </select>
+      </div>
+    </div>
+
+    <div class="col-sm-12">
+      <br>
+      <div id="panel-group">
+        <!-- <div *ngFor="let camdetails1 of camDetails;let i = index"> -->
+          <div *ngFor="let camdetails of camData.dates;let j = index">
+            <div class="panel panel-default">
+              <div class="panel-heading" (click)="current = j">
+                <h5 class="panel-title">
+                  <i class='glyphicon' [class.glyphicon-chevron-right]="j != current" [class.glyphicon-chevron-down]="j == current"></i> <b>  {{ camdetails.date }} </b>
+                </h5>
+              </div>
+              <div *ngFor="let videos of camdetails.videos;let k = index">
+                <div id="{{j}}" class="panel-collapse" [class.collapse]='current != j'>
+                  <div class="panel-body" style="padding:0px;">
+
+                    <div class="table-responsive" style="padding-left:6%;">
+                      <table class="table  table-striped" style="margin-bottom:1px;">
+                        <tbody>
+                          <tr>
+                            <td align="left"> <b>{{ camData.videoName}}_{{ videos.timeInterval }} </b> </td>
+                            <td align="right">
+                              <a href="{{ videos.videoUrl }}" title="download"> <span class=" glyphiconSize glyphicon glyphicon-cloud-download"></span> </a>                              &nbsp; <span class="glyphiconSize"><b> | </b></span> &nbsp;
+                              <a (click)="deleteModal(videos._id,camData.camId,camdetails)" id="deleteModal1" title="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphiconSize glyphicon glyphicon-trash"></span></a>                              &nbsp;
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- </div> -->
+      </div> 
+    </div>
+    </div>
+
+
+    <ng-template #noList>
+      <div class="col-sm-12  center">
+       
+         <div class="displayDiv2">
+              <img src="../../../assets/img/web/unidentified-empty.png"><br><br>
+
+               <p class="displayText">No video available. Please add a new video</p>
+
+            </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="modal fade" id="checkCosting" role="dialog" data-backdrop="false" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title" style="padding-left:3%;">Add Video</h4>
+        </div>
+        <div class="modal-body" style="padding:2%;padding-left:5%;">
+          <div class="row">
+            <div class="col-sm-12">
+              <p class="modaltext">  Total Storage Cost will be  <b>${{ finalCost }} / month</b> for this Camera
+                 <br> So, Do you want to continue ? </p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="text-align:right;">
+          <button type="submit" class="btn btn-primary" (click)="addNewVideo()" data-dismiss="modal" data-toggle="modal"> Yes </button>
+          <button type="submit" class="btn btn-primary" size="8" data-dismiss="modal" data-toggle="modal" (click)="onCancel()">CANCEL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="deleteModal" role="dialog" data-backdrop="false" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title" style="padding-left:3%;">Delete Video</h4>
+        </div>
+        <div class="modal-body" style="padding:2%;padding-left:5%;">
+          <div class="row">
+            <div class="col-sm-12">
+              <p class="modaltext">Are you sure you want to Delete the Video ?</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="text-align:right;">
+          <button type="submit" class="btn btn-primary" (click)="deleteVideo()" data-dismiss="modal" data-toggle="modal"> Delete</button>
+          <button type="submit" class="btn btn-primary" size="8" data-dismiss="modal" data-toggle="modal">CANCEL</button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,70 @@
+<nav class="navbar navbar-default1">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" (click)="sidebarToggle()">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar bar1"></span>
+                <span class="icon-bar bar2"></span>
+                <span class="icon-bar bar3"></span>
+            </button>
+            <!-- <a class="navbar-brand" href="#">{{getTitle()}}</a> -->
+        </div>
+        <div class="collapse navbar-collapse">
+            <!-- HIDDEN BUTTON FOR LOGOUT -->
+            <button type="submit" id="logoutModal1" class="btn btn-primary noBorder noLeftPadding" style="visibility:hidden;" data-dismiss="modal"
+                data-toggle="modal" data-target="#logoutModal">logout</button>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li *ngIf="role === 'SuperAdmin' || role ===  'Admin'">
+                    <a (click)="showNotifications()" title="Notifications">
+                        <img border="0" alt="" src="../../assets/img/web/alerts.png">
+                        <span class="redSpan" style="top:30%; 
+                        left:50%;
+                        position:absolute;" *ngIf="redLogo">
+                            <div class="redLogo" style="background-color:red;
+                            width:8px;
+                            height:8px;
+                            border-radius:4px;"></div>
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <br>
+                    <img border="0" alt="" src="../../assets/img/new_logo.png" height="30" class="card">
+                </li>
+                <li>
+                    <a (click)="logoutModal()" title="Logout">
+                        <i class="fa fa-sign-out" style="font-size:24px;color:white;"></i>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+
+
+
+<div class="modal fade" id="logoutModal" role="dialog" data-backdrop="false" style="background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="padding-left:3%;" >Logout</h4>
+            </div>
+            <div class="modal-body" style="padding:2%;padding-left:5%;">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p class="modaltext" >Are you sure you want to Logout?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align:right;">
+                <a href="/login" type="submit" class="btn btn-primary" (click)="logout()"> LOGOUT</a>
+                <button type="submit" class="btn btn-primary" size="8" data-dismiss="modal" data-toggle="modal">CANCEL</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,157 @@
+<div class="container-fluid">
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px',fullScreenBackdrop:true }"></ngx-loading>
+  <div class="row">
+    <div class="addaggregator">
+      <h5>Reports</h5>
+    </div>
+    <div class="aggregatorsDiv">
+      <button type="submit" class="btn btn-primary" *ngIf="role === 'SuperAdmin' || role ===  'Admin'" id="report" (click)="reportConfig()">
+        CONFIGURATION
+      </button>
+    </div>
+  </div>
+
+  <div class="container-fluid" *ngIf="isReport">
+    <div class="col-sm-12">
+      <div class="row cameralistdiv">
+        <div id="reportContainer1" style="height:70vh;"></div>
+      </div>
+    </div>
+  </div>
+
+  <form class="form" id="myForm" #ReportForm="ngForm">
+    <div class="row background" *ngIf="isConfig">
+      <div class="col-sm-12 cameraData">
+        <div class="col-sm-12">
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>GRANT TYPE</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="grantType" name="grantType" required disabled>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>PowerBI dId</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="dId" name="dId" required>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>USERNAME</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="userName" name="userName" required>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>PASSWORD</b>
+                </p>
+                <input type="password" class="form-control " id="report" [(ngModel)]="password" name="password" required>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>CLIENT ID</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="clientId" name="clientId" required>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>CLIENT SECRET</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="clientSecret" name="clientSecret" required>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>EMBED URL</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="embedUrl" name="embedUrl" required>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>RESOURCE</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="resource" name="resource" required disabled>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>OAUTH URL</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="oAuthUrl" name="oAuthUrl" required disabled>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <p>
+                  <b>CONTENT TYPE HEADER</b>
+                </p>
+                <input type="text" class="form-control " id="report" [(ngModel)]="cth" name="cth" required disabled>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-6 col-xs-12 overflow-text">
+              <div class="form-group">
+                <label for="configName"><b>CONFIGURATION NAME</b></label>
+                <select id="configuratonName" data-style="btn-info" class="form-control listcam" (change)="onChangeConfigName($event.target.value)"
+                  name="configName" [(ngModel)]="configName" required>
+                             <option value="" selected>Select Configuration Name</option> 
+                            <option value="Reports">Reports</option>
+                            <option value="FaceRecognition" >Face Recognition</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <button type="submit" class="btn btn-primary" id="report" [disabled]="!ReportForm.form.valid" (click)="sendData()">
+                SAVE
+              </button>
+              <button type="submit" class="btn btn-primary" id="cancel" (click)="cancel()">
+                CANCEL
+              </button>
+            </div>
+          </div>
+          <br>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="background" *ngIf="isMsg">
+    <div class="row">
+      <div class="col-sm-12 center">
+        <p class="font">Reports are not configured!</p>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,103 @@
+.devicemenu {
+    border: 1px solid #e7e7e7;
+    min-height: 70vh;
+    background-color: white;
+    border-radius: 5px;
+    /* padding:0%; */
+}
+.card1 {
+    height: 50vh;
+    padding:0;
+    border:none;
+    box-shadow: none;
+  }
+.text{
+    font-size: 24px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 1);
+}
+.live-image-div {
+    display: block;
+    height:100%;
+    width:100%;
+    /* margin-top: 1%; */
+    position:absolute;
+}
+.live-image {
+    height: 100%;
+    width: 100%;
+    border: 1px dotted lightgray;
+}
+.textHeadings{
+    font-size: 12px;
+    color: rgba(118, 118, 118, 1);
+}
+.textValues{
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(53, 53, 53, 1);
+}
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+    .devicemenu {
+        border: 1px solid #e7e7e7;
+        background-color: white;
+        height: 130vh;
+        /* padding:0%; */
+    }
+    .results{
+        margin-top:25%;
+    }
+
+}
+
+.panel-actions {
+    margin-top: -20px;
+    margin-bottom: 0;
+    text-align: right;
+  }
+  .panel-actions a {
+    color:#333;
+  }
+  .panel-fullscreen {
+      display: block;
+      z-index: 9999;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      overflow: auto;
+  }
+
+  .middle {
+    /* transition: .5s ease; */
+    opacity: 1;
+    padding:1%;
+    position: absolute;
+    width: 100%;
+    height:30px;
+    /* background: linear-gradient(black, transparent); */
+    text-align: right;
+  }
+  .middle1 {
+    /* transition: .5s ease; */
+    /* opacity: 0.5; */
+    /* padding:1%; */
+    position: absolute;
+    /* width: 100%; */
+    /* height:30px; */
+    /* background: linear-gradient(black, transparent); */
+    text-align: right;
+    float: right;
+    background-color: rgba(255,255,255,0.5);
+  }
+  .fullscreen-logo{
+    font-size: 20px;
+    color: rgba(255,255,255,1);
+  }
+  .key, .value{
+      color:rgba(255,0,0,1);
+      /* opacity:1; */
+  }

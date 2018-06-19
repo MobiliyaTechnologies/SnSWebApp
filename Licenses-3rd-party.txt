@@ -1,0 +1,88 @@
+This document contains the list of Third Party Software included with
+Security and Surveillance WebApp, along with the license information.
+
+Third Party Software may impose additional restrictions and it is the
+user's responsibility to ensure that they have met the licensing
+requirements of WebApp and the relevant license of the Third Party
+Software they are using.
+
+AngularJS 4	
+url - https://angular.io/
+License - MIT
+Reference - https://github.com/angular/angular/blob/master/LICENSE
+
+Bootstrap 3.3.7
+url - https://getbootstrap.com/docs/3.3/getting-started/
+License - MIT
+Reference - https://github.com/twbs/bootstrap/blob/v4-dev/LICENSE
+
+jquery
+url - https://jquery.com/
+License - MIT
+Reference - https://github.com/jquery/jquery/blob/master/LICENSE.txt
+
+socket.io
+url - https://github.com/socketio/socket.io
+License - MIT
+Reference - https://github.com/socketio/socket.io/blob/master/LICENSE
+
+font-awesome 4.2
+url - http://fontawesome.io/
+License - SIL Open font License 1.1
+Reference - http://scripts.sil.org/OFL
+
+Express
+url - https://expressjs.com/
+License - MIT
+Reference - https://github.com/expressjs/express/blob/master/LICENSE
+
+angular2-draggable
+url - https://www.npmjs.com/package/angular2-draggable
+License - MIT
+Reference - https://github.com/xieziyu/angular2-draggable
+
+angular2-multiselect-dropdown
+url - https://www.npmjs.com/package/angular2-multiselect-dropdown
+License - MIT
+Reference - https://github.com/CuppaLabs/angular2-multiselect-dropdown
+
+angular2-tooltip
+url - https://www.npmjs.com/package/angular2-tooltip
+License - ISC
+Reference - https://github.com/bharatraj88/angular2-tooltip
+
+chart.js
+url - https://www.chartjs.org/
+License - MIT
+Reference - https://github.com/chartjs/Chart.js
+
+chartist
+url - https://www.npmjs.com/package/chartist
+License - MIT OR WTFPL
+Reference - https://github.com/gionkunz/chartist-js
+
+msal
+url - https://www.npmjs.com/package/msal
+License - MIT
+Reference - https://github.com/AzureAD/microsoft-authentication-library-for-js
+
+ng2-img-cropper
+url - https://www.npmjs.com/package/ng2-img-cropper
+License - MIT
+Reference - https://github.com/cstefanache/angular2-img-cropper
+
+ngx-loading
+url - https://www.npmjs.com/package/ngx-loading
+License - MIT
+Reference - https://github.com/Zak-C/ngx-loading
+
+ngx-progressbar
+url - https://www.npmjs.com/package/ngx-progressbar
+License - MIT
+Reference - https://github.com/murhafsousli/ngx-progressbar
+
+powerbi-client
+url - https://www.npmjs.com/package/powerbi-client
+License - MIT
+Reference - https://github.com/Microsoft/PowerBI-JavaScript
+

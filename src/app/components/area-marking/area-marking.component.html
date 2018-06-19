@@ -1,0 +1,272 @@
+<!-- <div class="container-fluid background"> -->
+<div class="row box-element">
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px','fullScreenBackdrop':true }"></ngx-loading>
+  <div class="col-sm-12">
+    <br>
+    <div class="row">
+      <div class="col-sm-3" style="padding:0; padding-top: 7px;">
+        <span class="contentName">Mark Area</span>
+      </div>
+      <div class="col-sm-6">
+        <select id="featureName" data-style="btn-info" class="form-control" [(ngModel)]="featureName" name="featureName" (ngModelChange)="FeatureSelected($event)">
+          <option *ngFor="let algo of compFeatureNames;" [ngValue]='algo.featureName'>{{algo.displayAlgo}}</option>
+        </select>
+      </div>
+    </div>
+    <br>
+    <div class="row box">
+      <div class="col-sm-12">
+        <div id="canvasRow" class="row header">
+          <div class="col-sm-8 col-xs-6 textHeadings">
+            <span>{{deviceName}}</span>
+          </div>
+          <div class="col-sm-4 col-xs-6">
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+              <div class="btn-group" role="group" aria-label="First group">
+                <button type="button" class="btn btn-secondary" (click)="shapeSelected('Rectangle')" (click)="OtherShapes()" [ngClass]="(ShapeName === 'Rectangle')?'ShapeSelected':''">
+                  <img src="../../../assets/img/logos/square.png">
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="shapeSelected('Circle')" (click)="OtherShapes()" [ngClass]="(ShapeName === 'Circle')?'ShapeSelected':''">
+                  <img src="../../../assets/img/logos/circle.png">
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="shapeSelected('Triangle')" (click)="OtherShapes()" [ngClass]="(ShapeName === 'Triangle')?'ShapeSelected':''">
+                  <img src="../../../assets/img/logos/triangle.png">
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="shapeSelected('Line')" (click)="triplineCondn()" [ngClass]="(ShapeName === 'Line')?'ShapeSelected':''">
+                  <img src="../../../assets/img/logos/line.png">
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="onReset()">
+                    Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <canvas #myCanvas class="img-responsive" width="{{this.width}}" height="{{this.height}}" (mousedown)="mdEvent($event)" (mouseup)="muEvent($event)"
+            (mousemove)="mmEvent($event)"></canvas>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+
+      <button type="submit" (click)="goBackFromSlider()" *ngIf="!isBackFromUpdate && !isBackFromDashboard" class="btn btn-primary">BACK</button>
+      <button type="submit" (click)="goBackFromUpdate()" *ngIf="isBackFromUpdate && !isBackFromDashboard" class="btn btn-primary">BACK</button>
+      <button type="submit" (click)="goBackToFromConnectCam()" *ngIf="!isBackFromUpdate && isBackFromDashboard" class="btn btn-primary">BACK</button>
+
+      <button type="submit" *ngIf="!isOnboarding" (click)="MarkArea()" class="btn btn-primary">SAVE CONFIGURATIONS</button>
+      <button type="submit" *ngIf="isOnboarding" (click)="MarkAndFinish()" class="btn btn-primary">SAVE CONFIGURATIONS</button>
+
+
+      <button type="submit" *ngIf="!isOnboarding" data-dismiss="modal" data-toggle="modal" data-target="#retentionModal" (click)="clearFlag()" class="btn btn-primary">START STREAMING</button>
+      <button type="submit" *ngIf="isOnboarding" data-dismiss="modal" data-toggle="modal" data-target="#retentionModal2" (click)="clearFlag()" class="btn btn-primary">START STREAMING</button>
+
+      <button type="submit" (click)="onSkip()" class="btn btn-primary">CANCEL</button>
+      <button type="submit" id="markerbtn" class="btn btn-primary" *ngIf="!(ShapeName === null)" data-toggle="modal" data-target="#myModal"
+        style="visibility:hidden;">opp</button>
+    </div>
+  </div>
+  <br>
+</div>
+
+<div class="modal modal-top fade bd-example-modal-sm" id="myModal" style="position: absolute;" role="dialog" data-backdrop="false">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body" style="padding:5%;">
+        <form class="form" id="myForm" #areaMarkForm="ngForm">
+          <h4 class="modal-title">Marker Properties</h4>
+          <br>
+          <div class="form-group">
+            <div *ngIf="featureName === 'objectDetection'; else noObject">
+              <label class="text" for="deviceName">OBJECT TYPE</label>
+              <select id="objectType" data-style="btn-info" class="form-control" required [(ngModel)]="objectType" name="objectType">
+                <option *ngFor="let object of objects" [ngValue]='object'>{{object}}</option>
+              </select>
+            </div>
+            <ng-template #noObject></ng-template>
+          </div>
+
+          <div class="form-group" *ngIf="ShapeName === 'Line'; else otherShapes">
+            <label class="text" for="deviceName">DIRECTION</label>
+            <select id="lineDir" data-style="btn-info" class="form-control" [(ngModel)]="lineDir" name="lineDir" (ngModelChange)="LineDirection($event)">
+              <option value="left">Left to Right</option>
+              <option value="right" selected>Right to Left</option>
+              <option value="top" selected>Top to Bottom</option>
+              <option value="bottom" selected>Bottom to Top</option>
+            </select>
+          </div>
+          <ng-template #otherShapes></ng-template>
+
+          <div class="form-group">
+            <label class="text" for="deviceName">MARKER NAME</label>
+            <input type="text" class="form-control listcam" id="markerName" placeholder="Enter Name" name="markerName" required [(ngModel)]="markerName">
+          </div>
+
+          <div class="form-group">
+            <label class="text" for="deviceName">TAG</label>
+            <input type="text" class="form-control listcam" id="tagName" placeholder="Enter Tag" name="TagName" [(ngModel)]="TagName">
+          </div>
+
+          <div class="row">
+            <div class="col-sm-5" style="text-align: left;">
+              <button type="submit" class="btn btn-primary" (click)="deleteBbox()" size="8" data-dismiss="modal" data-target="#myModal">CANCEL</button>
+            </div>
+            <div class="col-sm-2">
+              <button type="submit" id="closemarkerbtn" class="btn btn-primary" data-dismiss="modal" data-target="#myModal" style="visibility:hidden;">cp</button>
+            </div>
+            <div class="col-sm-5" style="text-align: right;">
+              <button type="submit" class="btn btn-primary" [disabled]="!areaMarkForm.form.valid" (click)="markerProp()" size="8">SUBMIT</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="retentionModal" role="dialog" data-backdrop="false" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" style="padding-left:3%;"> <b>Save Video</b> </h4>
+      </div>
+      <div class="modal-body" style="padding:2%;padding-left:5%;">
+        <div class="row">
+          <div class="col-sm-12" *ngIf="!addRetention"> Do you want to take backup of this video ? </div>
+          <div *ngIf="addRetention">
+            <form class="form" id="myForm" #indexForm="ngForm">
+              <div class="col-sm-12">
+                <div class="row">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                        <b> ENTER VIDEO NAME</b>
+                      </p>
+                      <input type="text" class="form-control" id="videoName" [(ngModel)]="videoName" name="videoName" required>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                <div class="row">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                        <b>SELECT RETENTION PERIOD </b>
+                      </p>
+                      <select id="costTest" class="col-sm-4" data-style="btn-info" class="form-control" name="form_select" (change)="calculateCost($event.target.value)"
+                        required>
+                          <option value ="0"> 1 Day</option>
+                          <option value ="1"> 1 Week</option>
+                          <option value ="2"> 1 Month</option>
+                          <option value ="3"> 1 Quarter</option>
+                          <option value ="4"> 1 Year</option>
+                        </select>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                <div class="row" *ngIf="showCost">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                          * TOTAL STORAGE COST WILL BE  <b>${{ finalCost }} / MONTH</b> FOR THIS CAMERA
+                          
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <br>
+        </div>
+      </div>
+      <div class="modal-footer" style="text-align:right;">
+        <button type="submit" class="btn btn-primary" *ngIf="!addRetention" (click)="addRetentionTime()" size="8">YES</button>
+        <button type="submit" class="btn btn-primary" *ngIf="!addRetention" (click)="startStreaming(0)" size="8" data-dismiss="modal"
+          data-toggle="modal" data-target="#retentionModal">NO</button>
+
+
+        <button type="submit" class="btn btn-primary" *ngIf="addRetention" (click)="startStreaming(1)" size="8" data-dismiss="modal"
+          data-toggle="modal" data-target="#retentionModal">SAVE & START STREAMING</button>
+        <button type="submit" class="btn btn-primary" *ngIf="addRetention" (click)="goBack()" size="8">CANCEL</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="retentionModal2" role="dialog" data-backdrop="false" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" style="padding-left:3%;"> Save Video </h4>
+      </div>
+      <div class="modal-body" style="padding:2%;padding-left:5%;">
+        <div class="row">
+
+          <div class="col-sm-12" *ngIf="!addRetention"> Do you want to take backup of this video ? </div>
+
+          <div *ngIf="addRetention">
+            <form class="form" id="myForm" #index2Form="ngForm">
+              <div class="col-sm-12">
+                <div class="row">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                        <b> ENTER VIDEO NAME</b>
+                      </p>
+                      <input type="text" class="form-control" id="videoName" [(ngModel)]="videoName" name="videoName" required>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                <div class="row">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                        <b>SELECT RETENTION PERIOD </b>
+                      </p>
+                      <select id="costTest" class="col-sm-4" data-style="btn-info" class="form-control" name="form_select" (change)="calculateCost($event.target.value)" required>
+                          <option value ="0"> 1 Day</option>
+                          <option value ="1"> 1 Week</option>
+                          <option value ="2"> 1 Month</option>
+                          <option value ="3"> 1 Quarter</option>
+                          <option value ="4"> 1 Year</option>
+                        </select>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                <div class="row" *ngIf="showCost">
+                  <div class="form-group">
+                    <div class="col-sm-12 col-xs-12">
+                      <p>
+                           * TOTAL STORAGE COST WILL BE  <b>${{ finalCost }} / MONTH</b> FOR THIS CAMERA
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <br>
+        </div>
+      </div>
+      <div class="modal-footer" style="text-align:right;">
+        <button type="submit" class="btn btn-primary" *ngIf="!addRetention" (click)="addRetentionTime()" size="8">YES</button>
+        <button type="submit" class="btn btn-primary" *ngIf="!addRetention" (click)="startStreaming(0)" size="8" data-dismiss="modal"
+          data-toggle="modal" data-target="#retentionModal2">NO</button>
+
+
+        <button type="submit" class="btn btn-primary" *ngIf="addRetention" (click)="startStreamingAndFinish(1)" size="8" data-dismiss="modal"
+          data-toggle="modal" data-target="#retentionModal2">SAVE & START STREAMING</button>
+        <button type="submit" class="btn btn-primary" *ngIf="addRetention" (click)="goBack()" size="8">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>

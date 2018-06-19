@@ -1,0 +1,105 @@
+.background{
+    border: 1px solid #e7e7e7;
+    min-height: 70vh;
+    background-color: white;
+    padding:0%;
+    border: none;
+    border-radius: 5px;
+}
+.addvideo{
+    float:left;
+    color:white;
+}
+.ImageDivRow{
+    padding: 0;
+    margin: 1%;
+}
+.ImageDivCol{
+    padding: 0;
+    margin-top: 0;
+}
+.imageDiv {
+    display: block;
+    height:100%;
+    width:100%;
+    padding: 0;
+    margin-bottom:15px;
+}
+.cameraPreview {
+    height: 100%;
+    width: 100%;
+    border: 1px dotted lightgray;
+}
+.camName {
+    opacity: 1;
+    position: absolute;
+    top: 1%;
+    left: 5%;
+    color: white;
+    text-align: center;
+}
+.markerOverlay {
+    opacity: 1;
+    position: absolute;
+    bottom: 1%;
+    left: 5%;
+    color: white;
+    text-align: center;
+}
+.center{
+    text-align: center !important;
+}
+.font{
+    font-size: 16px;
+}
+.middle {
+    opacity: 1;
+    padding:1%;
+    position: absolute;
+    width: 100%;
+    height:30px;
+    text-align: right;
+    z-index: 10;
+  }
+  .fullscreen-logo{
+    font-size: 15px;
+    color: rgba(255,255,255,1);
+  }
+  .panel-fullscreen {
+      display: block;
+      z-index: 12;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      overflow: none;
+  }
+  .middle1 {
+    /* transition: .5s ease; */
+    /* opacity: 0.5; */
+    /* padding:1%; */
+    position: absolute;
+    /* width: 100%; */
+    /* height:30px; */
+    /* background: linear-gradient(black, transparent); */
+    text-align: right;
+    float: right;
+    background-color: rgba(255,255,255,0.5);
+  }
+  .key, .value{
+    color:rgba(255,0,0,1);
+    /* opacity:1; */
+}
+.displayDiv2
+{
+    text-align:center; 
+    margin-top:20%;
+}
+.displayText
+{
+    color: rgba(163, 162, 162, 1);
+     font-size: 15px;
+}
