@@ -63,7 +63,7 @@ import { MultiscreenComponent } from './layout/multiscreen/multiscreen.component
 import { VideoRetentionComponent } from './layout/video-retention/video-retention.component';
 import { PagerService } from './layout/facedetection/_services/index';
 
-const config: SocketIoConfig = { url: data.configData.vmUrl, options: {} };
+const config: SocketIoConfig = { url: "", options: {} };
 
 @NgModule({
   declarations: [
