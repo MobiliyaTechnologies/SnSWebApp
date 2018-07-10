@@ -14,15 +14,18 @@ export class ComputeEngineComponent implements OnInit {
   computeengines: any[];
   computeengines1: any[];
   computeengines2: any[];
-  compName : string;
-  deviceType : string;
-  macId : string;
-  ipAddress:string;
-  status:string;
-  compType:string;
+  compName: string;
+  deviceType: string;
+  macId: string;
+  ipAddress: string;
+  status: string;
+  compType: string;
   token: string;
-  constructor(private http:HttpClient) {
-    this.vmUrl = data.configData.vmUrl;
+  constructor(private http: HttpClient) {
+    var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
+    if (session != null) {
+      this.vmUrl = session.vmUrl;
+    }
     this.computeengines = [];
     this.computeengines1 = [];
     this.computeengines2 = [];
@@ -41,8 +44,8 @@ export class ComputeEngineComponent implements OnInit {
   onChange(deviceValue) {
     console.log(deviceValue);
     this.computeengines1.forEach(item => {
-      
-      if(deviceValue ===item._id){
+
+      if (deviceValue === item._id) {
         this.compName = item.deviceName;
         this.deviceType = item.deviceType;
         this.macId = item.macId;
@@ -50,57 +53,102 @@ export class ComputeEngineComponent implements OnInit {
       }
     });
   }
-  compDisplay(status){
+  compDisplay(status) {
     //this.computeengines = [];
     //this.computeengines1 = [];
-    this.http.get<any[]>(this.vmUrl + '/computeengines?status='+status,
-    // {
-    //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
-    //   }
+    this.http.get<any[]>(this.vmUrl + '/computeengines?status=' + status,
+      // {
+      //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
+      //   }
     ).subscribe(data => {
       console.log(data);
-      if(status === "2"){
+      if (status === "2") {
         this.computeengines = [];
         data.forEach(item => {
-          this.computeengines.push({ 'deviceName': item.name,'deviceType':item.deviceType, "_id": item._id,"Ipaddress":item.ipAddress,"macId":item.macId,"status":item.status});
+          this.computeengines.push({ 'deviceName': item.name, 'deviceType': item.deviceType, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "status": item.status });
         });
       }
-      if(status==="1")
-      {
+      if (status === "1") {
         this.computeengines2 = [];
         data.forEach(item => {
-          this.computeengines2.push({ 'deviceName': item.name,'deviceType':item.deviceType, "_id": item._id,"Ipaddress":item.ipAddress,"macId":item.macId,"status":item.status});
+          this.computeengines2.push({ 'deviceName': item.name, 'deviceType': item.deviceType, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "status": item.status });
         });
       }
-      else{
+      else {
         this.computeengines1 = [];
         data.forEach(item => {
-          this.computeengines1.push({ 'deviceName': item.name,'deviceType':item.deviceType, "_id": item._id,"Ipaddress":item.ipAddress,"macId":item.macId,"status":item.status});
+          this.computeengines1.push({ 'deviceName': item.name, 'deviceType': item.deviceType, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "status": item.status });
         });
       }
     });
   };
 
-  PushCompData(){
+  PushCompData() {
     var data = {
       name: this.compName,
       deviceType: this.deviceType,
       macId: this.macId,
-      ipAddress:this.ipAddress,
+      ipAddress: this.ipAddress,
       status: 0
     };
     console.log(this.compType);
-    if(this.compType != undefined && this.compType != 'other')
-    {
+    if (this.compType != undefined && this.compType != 'other') {
       data.status = 1;
-      this.http.put(this.vmUrl + '/computeengines/'+this.compType, data, 
+      this.http.put(this.vmUrl + '/computeengines/' + this.compType, data,
+        // {
+        //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
+        //   }
+      )
+        .subscribe(
+        res => {
+          console.log("In push aggr data", JSON.stringify(res));
+          this.status = "2";
+          this.compDisplay(this.status);
+        },
+        err => {
+          console.log("Error occured");
+          console.log("error response", err);
+          if (err.status == 409) {
+            window.alert(err.data.deviceName + " already present");
+          }
+        }
+        );
+    }
+    else {
+      this.http.post(this.vmUrl + '/computeengines', data,
+        // {
+        //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
+        //   }
+      )
+        .subscribe(
+        res => {
+          console.log("In push aggr data", JSON.stringify(res));
+          this.status = "1";
+          this.compDisplay(this.status);
+        },
+        err => {
+          console.log("Error occured");
+          console.log("error response", err);
+          if (err.status == 409) {
+            window.alert(err.data.deviceName + " already present");
+          }
+        }
+        );
+    }
+  };
+
+  compRemove(compId) {
+    var data = {
+      status: 0
+    }
+    this.http.put(this.vmUrl + '/computeengines/' + compId, data,
       // {
       //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
       //   }
-      )
+    )
       .subscribe(
       res => {
-        console.log("In push aggr data", JSON.stringify(res));
+        console.log("In offboard comp data", JSON.stringify(res));
         this.status = "2";
         this.compDisplay(this.status);
       },
@@ -112,56 +160,9 @@ export class ComputeEngineComponent implements OnInit {
         }
       }
       );
-    }
-    else{
-      this.http.post(this.vmUrl + '/computeengines', data,
-      // {
-      //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
-      //   }
-      )
-      .subscribe(
-      res => {
-        console.log("In push aggr data", JSON.stringify(res));
-        this.status = "1";
-        this.compDisplay(this.status);
-      },
-      err => {
-        console.log("Error occured");
-        console.log("error response", err);
-        if (err.status == 409) {
-          window.alert(err.data.deviceName + " already present");
-        }
-      }
-      );
-    }
-  };
-
-  compRemove(compId){
-    var data = {
-        status: 0
-    }
-    this.http.put(this.vmUrl + '/computeengines/'+compId, data,
-    // {
-    //   headers: new HttpHeaders().set('Authorization', "Bearer " + this.token),
-    //   }
-    )
-    .subscribe(
-    res => {
-      console.log("In offboard comp data", JSON.stringify(res));
-      this.status = "2";
-      this.compDisplay(this.status);
-    },
-    err => {
-      console.log("Error occured");
-      console.log("error response", err);
-      if (err.status == 409) {
-        window.alert(err.data.deviceName + " already present");
-      }
-    }
-    );
 
   };
-  UpdateCompEngine(){
+  UpdateCompEngine() {
     this.status = "0";
     this.compDisplay(this.status);
   };

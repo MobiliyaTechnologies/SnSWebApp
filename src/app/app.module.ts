@@ -16,23 +16,15 @@ import { NotificationsComponent }   from './layout/notifications/notifications.c
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { LayoutComponent } from './layout/layout.component';
-//import { CamerasComponent } from './layout/cameras/cameras.component';
 import { ConfigurationModule } from './layout/configuration/configuration.module';
 import { DisplayResultsComponent } from './layout/display-results/display-results.component';
 import { ReportsComponent } from './layout/reports/reports.component';
-//import { TodoComponent } from './login/todo.component';
-//import { TodoService } from './services/todo.service';
 import { MsalService } from './services/msal.service';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { ChartsModule } from 'ng2-charts';
 import * as data from '../../config';
 import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 import {ImageCropperComponent} from 'ng2-img-cropper';
-// import {ReactiveFormsModule, FormsModule, FormBuilder, Validators} from '@angular/forms';
-// import { ConnectCameraComponent } from './layout/on-boarding/connect-camera/connect-camera.component';
-// import { CameraMappingComponent } from './layout/on-boarding/camera-mapping/camera-mapping.component';
-// import { AreaMarkingComponent } from './layout/on-boarding/area-marking/area-marking.component';
-// import { NavbarComponent } from './layout/on-boarding/navbar/navbar.component';
 import { HomepageComponent } from './layout/homepage/homepage.component';
 import { DeviceManagementComponent } from './layout/device-management/device-management.component';
 import { CameraManagementComponent } from './layout/device-management/camera-management/camera-management.component';
@@ -73,7 +65,6 @@ import { PagerService } from './layout/facedetection/_services/index';
 
 const config: SocketIoConfig = { url: data.configData.vmUrl, options: {} };
 
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -84,11 +75,9 @@ const config: SocketIoConfig = { url: data.configData.vmUrl, options: {} };
     LoginComponent,
     LayoutComponent,
     DisplayResultsComponent,
-
     ReportsComponent,
     CameraMappingComponent,
     AreaMarkingComponent,
-    // NavbarComponent,
     HomepageComponent,
     DeviceManagementComponent,
     CameraManagementComponent,
@@ -120,7 +109,6 @@ const config: SocketIoConfig = { url: data.configData.vmUrl, options: {} };
     NavbarModule,
     FormsModule,
     FooterModule,ReactiveFormsModule,
-    NguiMapModule.forRoot({apiUrl: 'https://maps.google.com/maps/api/js?key=YOUR_KEY_HERE'}),
     HttpClientModule,
     ConfigurationModule,
     SocketIoModule.forRoot(config),
