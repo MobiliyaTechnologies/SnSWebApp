@@ -20,6 +20,9 @@ import { ToastrService } from '../../services/toastr.service';
 })
 export class VideoRetentionComponent implements OnInit {
 
+  @ViewChild('myCanvas') myCanvas: ElementRef;
+  public context: CanvasRenderingContext2D;
+
   vmUrl: string;
   socket: SocketIOClient.Socket;
   userId: string;
@@ -50,14 +53,15 @@ export class VideoRetentionComponent implements OnInit {
   camDetails: any[];
   collapse: boolean;
   camId: any;
+  videourl: any;
 
   current: number = 0;
   items: Array<any>;
   oneHourCost: any;
   camData: any;
   checkData: any;
-
-
+  deleteVideoDate: any;
+  deleteVideoId: any;
 
 
   constructor(public router: Router, private http: HttpClient, public domSanitizer: DomSanitizer, private toastrService: ToastrService, private zone: NgZone) {
@@ -104,6 +108,8 @@ export class VideoRetentionComponent implements OnInit {
     this.getRetentionCost();
   }
 
+
+
   ngOnDestroy() {
     this.socket.disconnect();
   }
@@ -126,15 +132,15 @@ export class VideoRetentionComponent implements OnInit {
   }
 
   getRetentionCost() {
-    var cost=0;
+    var cost = 0;
     this.http.get<any>(this.vmUrl + '/retention/price')
       .subscribe(
       res => {
         var price = res.price;
-        cost = price/1024;
+        cost = price / 1024;
         this.storageCost = cost * 25;
         this.oneHourCost = this.storageCost * 60;
-        console.log("STORAGE COST = ",this.storageCost);
+        console.log("STORAGE COST = ", this.storageCost);
       },
       err => {
         this.toastrService.Error("", "No Data Available");
@@ -173,6 +179,106 @@ export class VideoRetentionComponent implements OnInit {
     }
 
   };
+
+
+  deleteAllModal(camdetails) {
+    this.deleteVideoDate = camdetails.date;
+    console.log("date : ", this.deleteVideoId);
+    if (camdetails.videos.length == 1) {
+      this.checkData = true;
+    }
+  }
+
+  deleteAllVideo() {
+    this.loading = true;
+    if (this.deleteVideoId == undefined) {
+      this.deleteVideoId = this.cameras[0].camId;
+    }
+
+    this.http.delete(this.vmUrl + '/videos/retention/all?date=' + this.deleteVideoDate + '&camId=' + this.deleteVideoId,
+      { observe: 'response' }
+    ).subscribe(
+      (res: any) => {
+        this.loading = false;
+        this.getCameras();
+      },
+      err => {
+        this.loading = false;
+        this.videoId = '';
+        this.toastrService.Error("", "Failed to delete the Video");
+        console.log("error response", err);
+        if (err.status == 500) {
+          console.log(err);
+        }
+      })
+
+  }
+
+  loadImage() {
+
+    let base_image = new Image();
+    base_image.src = this.videourl;
+
+    this.context = this.myCanvas.nativeElement.getContext("2d");
+    let context: CanvasRenderingContext2D = this.myCanvas.nativeElement.getContext("2d");
+    base_image.onload = () => {
+      context.drawImage(base_image, 0, 0
+        , base_image.width, base_image.height, 0, 0, context.canvas.width, context.canvas.height);
+      this.loading = false;
+      // this.imgResWidth = base_image.width;
+      // this.imgResHeight = base_image.height;
+
+    };
+  }
+
+  playModal(videoid, camId, camdetails, videoUrl) {
+
+    this.videoId = videoid;
+    this.camId = camId;
+    this.videourl = videoUrl;
+    
+    setTimeout(() => {
+      this.loadVideo(videoid);
+    },200);
+
+    console.log("video url : ", this.videourl);
+  };
+
+
+  loadVideo(videoId) {
+  
+    var id = document.getElementById(videoId);
+    console.log("iddd : ", id);
+    if (id) {
+      var element = document.createElement('video');
+      element.id = videoId + "video";
+      element.className = 'playVideo';
+      element.style.width = '100%';
+      element.style.height = '100%';
+      element.src = this.videourl;
+      element.autoplay = true;
+      element.controls = true;
+      id.appendChild(element);
+      
+    }
+  }
+
+  clear() {
+    
+        if (document.getElementsByClassName('playVideo')) {
+            var elements = document.getElementsByClassName('playVideo');
+            while (elements.length > 0) {
+                elements[0].parentNode.removeChild(elements[0]);
+            }
+        }
+  }
+
+  private draw() {
+    this.context.beginPath();
+    this.context.moveTo(0, 0);
+    this.context.lineTo(300, 150);
+    this.context.stroke();
+  }
 
   deleteVideo() {
     this.loading = true;
@@ -293,6 +399,7 @@ export class VideoRetentionComponent implements OnInit {
       res => {
 
         this.loading = false;
+        console.log("res length : ", res.length);
         if (res.length == 0) {
           this.isList = false;
         }
@@ -435,6 +542,7 @@ export class VideoRetentionComponent implements OnInit {
   }
 
   onChangeCamera(cameraName) {
+    this.loading = true;
     console.log("camId : ", cameraName);
     var cameraId;
     this.cameras.forEach(item => {
@@ -443,12 +551,12 @@ export class VideoRetentionComponent implements OnInit {
       }
     })
 
+    this.deleteVideoId = cameraId;
+
     this.camDetails = [];
     this.http.get<any>(this.vmUrl + '/videos/retention?camId=' + cameraId)
       .subscribe(
       res => {
-
-        this.loading = false;
         if (res.length != 0) {
           //  this.isList = false;
           this.camDetails = res;
@@ -471,11 +579,11 @@ export class VideoRetentionComponent implements OnInit {
           });
           console.log("RESULT ========= ", resObj);
           this.camData = resObj;
-
+                  this.loading = false;
 
         }
         else {
-
+        this.loading = false;
           this.toastrService.Error("", "No Data Available");
 
         }

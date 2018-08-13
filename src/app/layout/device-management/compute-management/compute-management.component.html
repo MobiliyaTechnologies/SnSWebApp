@@ -172,6 +172,30 @@
             </p>
             <span>{{computeEngineDetails.cameraSupported}}</span>
           </div>
+          <div class="col-sm-6 col-xs-12" *ngIf="isPricingEnabled">
+            <p>
+              <b> PRICING TIER</b>
+            </p>
+            <span *ngIf='!isEdit'>
+              {{tierName}}
+            </span>
+
+            <div *ngIf='isEdit'>
+              <div class="col-sm-3" style="padding:0%;">
+                <span> Basic </span>
+              </div>
+              <div class="col-sm-3" style="padding:0%;">
+                <label class="switch">
+                  <input type="checkbox" (change)="onChangeSwitch($event)" [checked]="isChecked">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <div class="col-sm-3">
+                <span> Advance </span>
+              </div>
+
+            </div>
+          </div>
         </div>
         <br>
         <div class="row">

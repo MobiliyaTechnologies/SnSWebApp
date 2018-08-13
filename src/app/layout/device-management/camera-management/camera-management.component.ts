@@ -39,7 +39,7 @@ export class CameraManagementComponent implements OnInit {
     cameraDetailflag: boolean;
     location: string;
     featureName: string;
-    feature:string;
+    feature: string;
     jetsonWidth: number;
     jetsonHeight: number;
     frameWidth: number;
@@ -119,25 +119,25 @@ export class CameraManagementComponent implements OnInit {
         this.getRetentionCost();
         this.camDisplay(this.filter, this.substring);
         this.checkboxCamArr = [];
-        this.socketConnection();   
+        this.socketConnection();
     }
 
-      getRetentionCost() {
-    var cost=0;
-    this.http.get<any>(this.vmUrl + '/retention/price')
-      .subscribe(
-      res => {
-        var price = res.price;
-        cost = price/1024;
-        this.storageCost = cost * 25;
-        this.oneHourCost = this.storageCost * 60;
-        console.log("STORAGE COST = ",this.storageCost);
-      },
-      err => {
-        this.toastrService.Error("", "No Data Available");
-        console.log("Error occured: ", err);
-      });
-  }
+    getRetentionCost() {
+        var cost = 0;
+        this.http.get<any>(this.vmUrl + '/retention/price')
+            .subscribe(
+            res => {
+                var price = res.price;
+                cost = price / 1024;
+                this.storageCost = cost * 25;
+                this.oneHourCost = this.storageCost * 60;
+                console.log("STORAGE COST = ", this.storageCost);
+            },
+            err => {
+                this.toastrService.Error("", "No Data Available");
+                console.log("Error occured: ", err);
+            });
+    }
 
 
     checkCamera() {
@@ -164,6 +164,8 @@ export class CameraManagementComponent implements OnInit {
         this.socket.on('rawImage/' + this.userId, (msg: any) => {
             var selectedCam = JSON.parse(sessionStorage.getItem("camdetails"));
 
+            console.log("$$ selectedCam :: ", selectedCam);
+
             var data = JSON.parse(msg.message);
 
             if (this.storeImage === true) {
@@ -172,12 +174,15 @@ export class CameraManagementComponent implements OnInit {
                 this.storeImage = false;
             }
             console.log(this.rawImageArray);
-            if (data.camId === selectedCam._id) {
-                this.zone.run(() => {
-                    this.previewSrc = data.imgBase64;
-                    console.log("Image applied", JSON.parse(msg.message));
-                });
+            if (selectedCam != null) {
+                if (data.camId === selectedCam._id) {
+                    this.zone.run(() => {
+                        this.previewSrc = data.imgBase64;
+                        console.log("Image applied", JSON.parse(msg.message));
+                    });
+                }
             }
+
             let base_image = new Image();
             base_image.src = this.previewSrc;
             base_image.onload = () => {
@@ -229,7 +234,15 @@ export class CameraManagementComponent implements OnInit {
     getCameraDetails(cam, AggrIndex, CamIndex) {
         sessionStorage.setItem("camdetails", JSON.stringify(cam));
         sessionStorage.setItem("cameraId", cam.camId);
-        console.log("camdetails = ",cam);
+        console.log("camdetails = ", cam);
+
+        if (cam.aggregator == null || cam.aggregator == undefined) {
+            this.aggregatorName = 'Other';
+            this.computeEngineName = 'Other';
+        }
+
+
+
         var isRawImageStored = false;
         var previewSrc = '';
         this.selectedCamIndex = CamIndex;
@@ -282,9 +295,16 @@ export class CameraManagementComponent implements OnInit {
         this.http.get<any>(this.vmUrl + '/cameras/' + cam.camId
         ).subscribe(
             res => {
-                sessionStorage.setItem("camdetails", JSON.stringify(res));
-                this.aggregatorName = res.aggregator.name;
-                this.computeEngineName = res.computeEngine.name;
+                console.log("res :: ", res);
+                if (res.aggregator != null || res.aggregator != undefined) {
+                    sessionStorage.setItem("camdetails", JSON.stringify(res));
+                    this.aggregatorName = res.aggregator.name;
+                    this.computeEngineName = res.computeEngine.name;
+                }
+                else {
+                    this.toastrService.Error("Camera not assigned to any aggregator.");
+                }
+
             },
             err => {
                 console.log("Error occured");
@@ -770,160 +790,164 @@ export class CameraManagementComponent implements OnInit {
     };
 
     draw(cam) {
-        this.jetsonWidth = cam.imageWidth;
-        this.jetsonHeight = cam.imageHeight;
-        this.dataBoundBox = cam.boundingBox;
-        var imageDiv = document.getElementById('imageDiv');
-        var frameDimensions = imageDiv.getBoundingClientRect();
-        var width = frameDimensions.width / 100;
-        var height = frameDimensions.height / 100;
+        console.log("camcam :: ", cam);
+        if (cam != null) {
+            this.jetsonWidth = cam.imageWidth;
+            this.jetsonHeight = cam.imageHeight;
+            this.dataBoundBox = cam.boundingBox;
+            var imageDiv = document.getElementById('imageDiv');
+            var frameDimensions = imageDiv.getBoundingClientRect();
+            var width = frameDimensions.width / 100;
+            var height = frameDimensions.height / 100;
 
-        if (document.getElementsByClassName('rectangle1')) {
-            var elements = document.getElementsByClassName('rectangle1');
-            while (elements.length > 0) {
-                elements[0].parentNode.removeChild(elements[0]);
+            if (document.getElementsByClassName('rectangle1')) {
+                var elements = document.getElementsByClassName('rectangle1');
+                while (elements.length > 0) {
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
             }
+            var j = 0;
+            this.dataBoundBox.forEach(function (item) {
+                if (item.shape === 'Line') {
+                    var l1 = (item.x2 - item.x) * width;
+                    var l2 = (item.y2 - item.y) * height;
+                    var length = Math.sqrt((l1 * l1) + (l2 * l2));
+                    var angle = Math.atan2(l2, l1) * 180 / Math.PI;
+                    var transform = 'rotate(' + angle + 'deg)';
+                    var line = {
+                        x: item.x * width, //width
+                        y: item.y * height, //height
+                    };
+                    var element = document.createElement('div');
+                    element.id = "line";
+                    element.className = 'rectangle1';
+                    element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
+                    element.style.transform = transform;
+                    element.style.width = length + 'px';
+                    element.style.left = line.x + 'px';
+                    element.style.top = line.y + 'px';
+                    element.style.border = "1px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+                }
+
+                if (item.shape === 'Rectangle') {
+                    var rect = {
+                        x1: item.x * width, //width
+                        y1: item.y * height, //height
+                        width: (item.x2 - item.x) * width, //width x2-x1
+                        height: (item.y2 - item.y) * height //height y2-y1
+                    };
+                    var element = document.createElement('div');
+                    element.id = "rectangle";
+                    element.className = 'rectangle1';
+                    element.style.left = rect.x1 + 'px';
+                    element.style.top = rect.y1 + 'px';
+                    element.style.width = rect.width + 'px';
+                    element.style.height = rect.height + 'px';
+                    element.style.border = "2px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+                }
+
+                if (item.shape === 'Circle') {
+                    var circle = {
+                        x: item.startX * width,
+                        y: item.startY * height,
+                        x2: item.radiusX * 2 * width,
+                        y2: item.radiusY * 2 * height
+                    };
+                    var element = document.createElement('div');
+                    element.id = "circle";
+                    element.className = 'rectangle1';
+                    element.style.left = circle.x + 'px';
+                    element.style.top = circle.y + 'px';
+                    element.style.width = circle.x2 + 'px';
+                    element.style.height = circle.y2 + 'px';
+                    element.style.border = "2px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    element.style.borderRadius = 50 + '%';
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+                }
+
+                if (item.shape === 'Triangle') {
+                    var l1 = (item.x2 - item.x) * width;
+                    var l2 = (item.y2 - item.y) * height;
+                    var length1 = Math.sqrt((l1 * l1) + (l2 * l2));
+                    var angle = Math.atan2(l2, l1) * 180 / Math.PI;
+                    var transform1 = 'rotate(' + angle + 'deg)';
+                    var line = {
+                        x: item.x * width, //width
+                        y: item.y * height, //height
+                    };
+                    var element = document.createElement('div');
+                    element.id = "triangle1";
+                    element.className = 'rectangle1';
+                    element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
+                    element.style.transform = transform1;
+                    element.style.width = length1 + 'px';
+                    element.style.left = line.x + 'px';
+                    element.style.top = line.y + 'px';
+                    element.style.border = "1px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+
+                    var l3 = (item.x3 - item.x2) * width;
+                    var l4 = (item.y3 - item.y2) * height;
+                    var length1 = Math.sqrt((l3 * l3) + (l4 * l4));
+                    var angle = Math.atan2(l4, l3) * 180 / Math.PI;
+                    var transform1 = 'rotate(' + angle + 'deg)';
+                    var line = {
+                        x: item.x2 * width, //width
+                        y: item.y2 * height, //height
+                    };
+                    var element = document.createElement('div');
+                    element.id = "triangle2";
+                    element.className = 'rectangle1';
+                    element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
+                    element.style.transform = transform1;
+                    element.style.width = length1 + 'px';
+                    element.style.left = line.x + 'px';
+                    element.style.top = line.y + 'px';
+                    element.style.border = "1px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+
+                    var l5 = (item.x3 - item.x) * width;
+                    var l6 = (item.y3 - item.y) * height;
+                    var length1 = Math.sqrt((l5 * l5) + (l6 * l6));
+                    var angle = Math.atan2(l6, l5) * 180 / Math.PI;
+                    var transform1 = 'rotate(' + angle + 'deg)';
+                    var line = {
+                        x: item.x * width, //width
+                        y: item.y * height, //height
+                    };
+                    var element = document.createElement('div');
+                    element.id = "triangle3";
+                    element.className = 'rectangle1';
+                    element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
+                    element.style.transform = transform1;
+                    element.style.width = length1 + 'px';
+                    element.style.left = line.x + 'px';
+                    element.style.top = line.y + 'px';
+                    element.style.border = "1px solid lawngreen";
+                    element.style.borderColor = '#e38e68';
+                    element.style.position = "absolute";
+                    imageDiv.appendChild(element);
+                    j = j + 1;
+                }
+            });
         }
-        var j = 0;
-        this.dataBoundBox.forEach(function (item) {
-            if (item.shape === 'Line') {
-                var l1 = (item.x2 - item.x) * width;
-                var l2 = (item.y2 - item.y) * height;
-                var length = Math.sqrt((l1 * l1) + (l2 * l2));
-                var angle = Math.atan2(l2, l1) * 180 / Math.PI;
-                var transform = 'rotate(' + angle + 'deg)';
-                var line = {
-                    x: item.x * width, //width
-                    y: item.y * height, //height
-                };
-                var element = document.createElement('div');
-                element.id = "line";
-                element.className = 'rectangle1';
-                element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
-                element.style.transform = transform;
-                element.style.width = length + 'px';
-                element.style.left = line.x + 'px';
-                element.style.top = line.y + 'px';
-                element.style.border = "1px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                imageDiv.appendChild(element);
-                j = j + 1;
-            }
 
-            if (item.shape === 'Rectangle') {
-                var rect = {
-                    x1: item.x * width, //width
-                    y1: item.y * height, //height
-                    width: (item.x2 - item.x) * width, //width x2-x1
-                    height: (item.y2 - item.y) * height //height y2-y1
-                };
-                var element = document.createElement('div');
-                element.id = "rectangle";
-                element.className = 'rectangle1';
-                element.style.left = rect.x1 + 'px';
-                element.style.top = rect.y1 + 'px';
-                element.style.width = rect.width + 'px';
-                element.style.height = rect.height + 'px';
-                element.style.border = "2px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                imageDiv.appendChild(element);
-                j = j + 1;
-            }
-
-            if (item.shape === 'Circle') {
-                var circle = {
-                    x: item.startX * width,
-                    y: item.startY * height,
-                    x2: item.radiusX * 2 * width,
-                    y2: item.radiusY * 2 * height
-                };
-                var element = document.createElement('div');
-                element.id = "circle";
-                element.className = 'rectangle1';
-                element.style.left = circle.x + 'px';
-                element.style.top = circle.y + 'px';
-                element.style.width = circle.x2 + 'px';
-                element.style.height = circle.y2 + 'px';
-                element.style.border = "2px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                element.style.borderRadius = 50 + '%';
-                imageDiv.appendChild(element);
-                j = j + 1;
-            }
-
-            if (item.shape === 'Triangle') {
-                var l1 = (item.x2 - item.x) * width;
-                var l2 = (item.y2 - item.y) * height;
-                var length1 = Math.sqrt((l1 * l1) + (l2 * l2));
-                var angle = Math.atan2(l2, l1) * 180 / Math.PI;
-                var transform1 = 'rotate(' + angle + 'deg)';
-                var line = {
-                    x: item.x * width, //width
-                    y: item.y * height, //height
-                };
-                var element = document.createElement('div');
-                element.id = "triangle1";
-                element.className = 'rectangle1';
-                element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
-                element.style.transform = transform1;
-                element.style.width = length1 + 'px';
-                element.style.left = line.x + 'px';
-                element.style.top = line.y + 'px';
-                element.style.border = "1px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                imageDiv.appendChild(element);
-                j = j + 1;
-
-                var l3 = (item.x3 - item.x2) * width;
-                var l4 = (item.y3 - item.y2) * height;
-                var length1 = Math.sqrt((l3 * l3) + (l4 * l4));
-                var angle = Math.atan2(l4, l3) * 180 / Math.PI;
-                var transform1 = 'rotate(' + angle + 'deg)';
-                var line = {
-                    x: item.x2 * width, //width
-                    y: item.y2 * height, //height
-                };
-                var element = document.createElement('div');
-                element.id = "triangle2";
-                element.className = 'rectangle1';
-                element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
-                element.style.transform = transform1;
-                element.style.width = length1 + 'px';
-                element.style.left = line.x + 'px';
-                element.style.top = line.y + 'px';
-                element.style.border = "1px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                imageDiv.appendChild(element);
-                j = j + 1;
-
-                var l5 = (item.x3 - item.x) * width;
-                var l6 = (item.y3 - item.y) * height;
-                var length1 = Math.sqrt((l5 * l5) + (l6 * l6));
-                var angle = Math.atan2(l6, l5) * 180 / Math.PI;
-                var transform1 = 'rotate(' + angle + 'deg)';
-                var line = {
-                    x: item.x * width, //width
-                    y: item.y * height, //height
-                };
-                var element = document.createElement('div');
-                element.id = "triangle3";
-                element.className = 'rectangle1';
-                element.style.transformOrigin = 0 + "%" + " " + 100 + "%";
-                element.style.transform = transform1;
-                element.style.width = length1 + 'px';
-                element.style.left = line.x + 'px';
-                element.style.top = line.y + 'px';
-                element.style.border = "1px solid lawngreen";
-                element.style.borderColor = '#e38e68';
-                element.style.position = "absolute";
-                imageDiv.appendChild(element);
-                j = j + 1;
-            }
-        });
     }
 }

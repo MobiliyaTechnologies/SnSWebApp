@@ -57,11 +57,10 @@ export class AreaMarkingComponent implements OnInit {
     rawBbarray: any[] = [];
     rawbbarray: any[] = [];
     navigationParam;
-    navArray;
     isBackFromDashboard: boolean;
     isBackFromUpdate: boolean;
     isOnboarding: boolean;
-    display: any;
+
     markerArr: any[];
     storedMarkerArr: any[];
     public loading;
@@ -91,15 +90,15 @@ export class AreaMarkingComponent implements OnInit {
         this.isBackFromUpdate = false;
         this.route.queryParams.subscribe(params => {
             this.navigationParam = params;
-            this.navArray = params;
-            this.display = 'none';
         });
 
         if (this.navigationParam) {
             if (this.navigationParam.webUrl == 'dashCamera') {
+
                 this.isBackFromUpdate = false;
                 this.isBackFromDashboard = true;
                 this.filter = this.navigationParam.cameraType;
+
             }
             else if (this.navigationParam.webUrl == 'editCamera') {
                 this.isBackFromUpdate = true;
@@ -149,22 +148,21 @@ export class AreaMarkingComponent implements OnInit {
         this.socketConnection();
     }
 
-        getRetentionCost() {
-    var cost=0;
-    this.http.get<any>(this.vmUrl + '/retention/price')
-      .subscribe(
-      res => {
-        var price = res.price;
-        cost = price/1024;
-        this.storageCost = cost * 25;
-        this.oneHourCost = this.storageCost * 60;
-        console.log("STORAGE COST = ",this.storageCost);
-      },
-      err => {
-        this.toastrService.Error("", "No Data Available");
-        console.log("Error occured: ", err);
-      });
-  }
+    getRetentionCost() {
+        var cost = 0;
+        this.http.get<any>(this.vmUrl + '/retention/price')
+            .subscribe(
+            res => {
+                var price = res.price;
+                cost = price / 1024;
+                this.storageCost = cost * 25;
+                this.oneHourCost = this.storageCost * 60;
+            },
+            err => {
+                this.toastrService.Error("", "No Data Available");
+                console.log("Error occured: ", err);
+            });
+    }
 
     socketConnection() {
         this.socket.on('rawImage/' + this.userId, (msg: any) => {
@@ -345,73 +343,14 @@ export class AreaMarkingComponent implements OnInit {
             // this.RectPoint.push({ "x": x, "y": y, "x2": x2, "y2": y2, "direction": this.lineDir });
             this.RectPoint.push({ "x": x, "y": y, "x2": x2, "y2": y2 });
 
-            // if (this.lineDir === 'left') {
-            //     this.context.beginPath();
-            //     this.context.setLineDash([5, 15]);
-            //     this.context.moveTo(x, y);
-            //     this.context.lineTo(0, y);
-            //     this.context.moveTo(x2, y2);
-            //     this.context.lineTo(0, y2);
-            //     this.context.closePath();
-            //     this.context.stroke();
-            // }
-            // if (this.lineDir === 'right') {
-            //     this.context.beginPath();
-            //     this.context.setLineDash([5, 15]);
-            //     this.context.moveTo(x, y);
-            //     this.context.lineTo(this.width, y);
-            //     this.context.moveTo(x2, y2);
-            //     this.context.lineTo(this.width, y2);
-            //     this.context.closePath();
-            //     this.context.stroke();
-            // }
-            // if (this.lineDir === 'top') {
-            //     this.context.beginPath();
-            //     this.context.setLineDash([5, 15]);
-            //     this.context.moveTo(x, y);
-            //     this.context.lineTo(x, 0);
-            //     this.context.moveTo(x2, y2);
-            //     this.context.lineTo(x2, 0);
-            //     this.context.closePath();
-            //     this.context.stroke();
-            // }
-            // if (this.lineDir === 'bottom') {
-            //     this.context.beginPath();
-            //     this.context.setLineDash([5, 15]);
-            //     this.context.moveTo(x, y);
-            //     this.context.lineTo(x, this.height);
-            //     this.context.moveTo(x2, y2);
-            //     this.context.lineTo(x2, this.height);
-            //     this.context.closePath();
-            //     this.context.stroke();
-            // }
-
             this.drawLines();
             this.drawTriangles();
             this.drawRects();
             this.drawCircles();
 
             this.rawBbarray.push({ "shape": 'Line', "x": x * 100 / this.width, "y": y * 100 / this.height, "x2": x2 * 100 / this.width, "y2": y2 * 100 / this.height });
-            console.log(this.rawBbarray);
             this.LineDirection('left');
-            // if (this.lineDir === 'left' || this.lineDir === 'right') {
-            //     if (y > y2) {
-            //         let Y = y2; let X = x2; let Y2 = y; let X2 = x;
-            //         this.rawBbarray.push({ "shape": 'Line', "x": X * 100 / this.width, "y": Y * 100 / this.height, "x2": X2 * 100 / this.width, "y2": Y2 * 100 / this.height, "direction": this.lineDir });
-            //     }
-            //     else {
-            //         this.rawBbarray.push({ "shape": 'Line', "x": x * 100 / this.width, "y": y * 100 / this.height, "x2": x2 * 100 / this.width, "y2": y2 * 100 / this.height, "direction": this.lineDir });
-            //     }
-            // }
-            // if (this.lineDir === 'top' || this.lineDir === 'bottom') {
-            //     if (x > x2) {
-            //         let Y = y2; let X = x2; let Y2 = y; let X2 = x;
-            //         this.rawBbarray.push({ "shape": 'Line', "x": X * 100 / this.width, "y": Y * 100 / this.height, "x2": X2 * 100 / this.width, "y2": Y2 * 100 / this.height, "direction": this.lineDir });
-            //     }
-            //     else {
-            //         this.rawBbarray.push({ "shape": 'Line', "x": x * 100 / this.width, "y": y * 100 / this.height, "x2": x2 * 100 / this.width, "y2": y2 * 100 / this.height, "direction": this.lineDir });
-            //     }
-            // }
+
         }
 
         if (this.ShapeName === 'Triangle' && this.isTripline == true) {
@@ -537,7 +476,6 @@ export class AreaMarkingComponent implements OnInit {
             this.imgResWidth = base_image.width;
             this.imgResHeight = base_image.height;
             this.ShapeName = 'Rectangle';
-            console.log(this.ShapeName);
             this.storedBBox();
         };
     }
@@ -591,46 +529,6 @@ export class AreaMarkingComponent implements OnInit {
             canvasref.nativeElement.getContext("2d").closePath();
             canvasref.nativeElement.getContext("2d").stroke();
 
-            // if (item.direction === 'left') {
-            //     canvasref.nativeElement.getContext("2d").beginPath();
-            //     canvasref.nativeElement.getContext("2d").setLineDash([5, 15]);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x, item.y);
-            //     canvasref.nativeElement.getContext("2d").lineTo(0, item.y);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x2, item.y2);
-            //     canvasref.nativeElement.getContext("2d").lineTo(0, item.y2);
-            //     canvasref.nativeElement.getContext("2d").closePath();
-            //     canvasref.nativeElement.getContext("2d").stroke();
-            // }
-            // if (item.direction === 'right') {
-            //     canvasref.nativeElement.getContext("2d").beginPath();
-            //     canvasref.nativeElement.getContext("2d").setLineDash([5, 15]);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x, item.y);
-            //     canvasref.nativeElement.getContext("2d").lineTo(Width, item.y);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x2, item.y2);
-            //     canvasref.nativeElement.getContext("2d").lineTo(Width, item.y2);
-            //     canvasref.nativeElement.getContext("2d").closePath();
-            //     canvasref.nativeElement.getContext("2d").stroke();
-            // }
-            // if (item.direction === 'top') {
-            //     canvasref.nativeElement.getContext("2d").beginPath();
-            //     canvasref.nativeElement.getContext("2d").setLineDash([5, 15]);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x, item.y);
-            //     canvasref.nativeElement.getContext("2d").lineTo(item.x, 0);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x2, item.y2);
-            //     canvasref.nativeElement.getContext("2d").lineTo(item.x2, 0);
-            //     canvasref.nativeElement.getContext("2d").closePath();
-            //     canvasref.nativeElement.getContext("2d").stroke();
-            // }
-            // if (item.direction === 'bottom') {
-            //     canvasref.nativeElement.getContext("2d").beginPath();
-            //     canvasref.nativeElement.getContext("2d").setLineDash([5, 15]);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x, item.y);
-            //     canvasref.nativeElement.getContext("2d").lineTo(item.x, Height);
-            //     canvasref.nativeElement.getContext("2d").moveTo(item.x2, item.y2);
-            //     canvasref.nativeElement.getContext("2d").lineTo(item.x2, Height);
-            //     canvasref.nativeElement.getContext("2d").closePath();
-            //     canvasref.nativeElement.getContext("2d").stroke();
-            // }
         })
     };
 
@@ -667,7 +565,7 @@ export class AreaMarkingComponent implements OnInit {
     };
 
     LineDirection(e) {
-        console.log(e);
+
         var index = (this.RectPoint.length) - 1;
         var x = this.RectPoint[index].x;
         var y = this.RectPoint[index].y;
@@ -693,7 +591,7 @@ export class AreaMarkingComponent implements OnInit {
                 this.rawBbarray.push({ "shape": 'Line', "x": x * 100 / this.width, "y": y * 100 / this.height, "x2": x2 * 100 / this.width, "y2": y2 * 100 / this.height });
             }
         }
-        console.log(this.rawBbarray[index]);
+
     }
     storedBBox() {
         var canvasWidth = this.width;
@@ -701,106 +599,112 @@ export class AreaMarkingComponent implements OnInit {
         var canvascoors = [];
         var bboxcoors = [];
         var markerArr = [];
-        var rawbb = JSON.parse(sessionStorage.getItem('camdetails')).boundingBox;
-        rawbb.forEach(function (item) {
-            markerArr.push(item.markerName);
-            if (item.shape === 'Rectangle') {
-                var rect = {
-                    x: item.x * canvasWidth / 100,
-                    y: item.y * canvasHeight / 100,
-                    w: (item.x2 - item.x) * canvasWidth / 100,
-                    h: (item.y2 - item.y) * canvasHeight / 100
-                };
-                canvascoors.push(rect);
 
-                var raw = {
-                    shape: 'Rectangle',
-                    x: item.x,
-                    y: item.y,
-                    x2: item.x2,
-                    y2: item.y2,
-                    markerName: item.markerName,
-                    tagName: item.tagName
-                };
-                bboxcoors.push(raw);
-            }
+        var rawbb = JSON.parse(sessionStorage.getItem('camdetails'));
 
-            if (item.shape === 'Line') {
-                var line = {
-                    // direction: item.direction,
-                    x: item.x * canvasWidth / 100,
-                    y: item.y * canvasHeight / 100,
-                    x2: item.x2 * canvasWidth / 100,
-                    y2: item.y2 * canvasHeight / 100
-                };
-                canvascoors.push(line);
+        if (rawbb != null) {
 
-                var raw1 = {
-                    shape: 'Line',
-                    x: item.x,
-                    y: item.y,
-                    x2: item.x2,
-                    y2: item.y2,
-                    direction: item.direction,
-                    markerName: item.markerName,
-                    tagName: item.tagName
-                };
-                bboxcoors.push(raw1);
-            }
+            rawbb.boundingBox.forEach(function (item) {
+                markerArr.push(item.markerName);
+                if (item.shape === 'Rectangle') {
+                    var rect = {
+                        x: item.x * canvasWidth / 100,
+                        y: item.y * canvasHeight / 100,
+                        w: (item.x2 - item.x) * canvasWidth / 100,
+                        h: (item.y2 - item.y) * canvasHeight / 100
+                    };
+                    canvascoors.push(rect);
 
-            if (item.shape === 'Circle') {
-                var radiusX = ((item.x2 - item.x) / 100) * canvasWidth;
-                var radiusY = ((item.y2 - item.y) / 100) * canvasHeight;
-                var radius = Math.sqrt((radiusX * radiusX) + (radiusY * radiusY));
+                    var raw = {
+                        shape: 'Rectangle',
+                        x: item.x,
+                        y: item.y,
+                        x2: item.x2,
+                        y2: item.y2,
+                        markerName: item.markerName,
+                        tagName: item.tagName
+                    };
+                    bboxcoors.push(raw);
+                }
 
-                var circle = {
-                    x: item.x * canvasWidth / 100,
-                    y: item.y * canvasHeight / 100,
-                    radius: radius
-                };
-                canvascoors.push(circle);
+                if (item.shape === 'Line') {
+                    var line = {
+                        // direction: item.direction,
+                        x: item.x * canvasWidth / 100,
+                        y: item.y * canvasHeight / 100,
+                        x2: item.x2 * canvasWidth / 100,
+                        y2: item.y2 * canvasHeight / 100
+                    };
+                    canvascoors.push(line);
 
-                var rawC = {
-                    shape: 'Circle',
-                    x: item.x,
-                    y: item.y,
-                    x2: item.x2,
-                    y2: item.y2,
-                    startX: item.startX,
-                    startY: item.startY,
-                    radiusX: item.radiusX,
-                    radiusY: item.radiusY,
-                    markerName: item.markerName,
-                    tagName: item.tagName
-                };
-                bboxcoors.push(rawC);
-            }
+                    var raw1 = {
+                        shape: 'Line',
+                        x: item.x,
+                        y: item.y,
+                        x2: item.x2,
+                        y2: item.y2,
+                        direction: item.direction,
+                        markerName: item.markerName,
+                        tagName: item.tagName
+                    };
+                    bboxcoors.push(raw1);
+                }
 
-            if (item.shape === 'Triangle') {
-                var triangle = {
-                    x: item.x * canvasWidth / 100,
-                    y: item.y * canvasHeight / 100,
-                    x2: item.x2 * canvasWidth / 100,
-                    y2: item.y2 * canvasHeight / 100,
-                    x3: item.x3 * canvasWidth / 100,
-                    y3: item.y3 * canvasHeight / 100
-                };
-                canvascoors.push(triangle);
+                if (item.shape === 'Circle') {
+                    var radiusX = ((item.x2 - item.x) / 100) * canvasWidth;
+                    var radiusY = ((item.y2 - item.y) / 100) * canvasHeight;
+                    var radius = Math.sqrt((radiusX * radiusX) + (radiusY * radiusY));
 
-                var raw2 = {
-                    shape: 'Triangle',
-                    x: item.x,
-                    y: item.y,
-                    x2: item.x2,
-                    y2: item.y2,
-                    x3: item.x3,
-                    y3: item.y3,
-                    markerName: item.markerName,
-                    tagName: item.tagName
-                };
-                bboxcoors.push(raw2);
-            }
-        })
+                    var circle = {
+                        x: item.x * canvasWidth / 100,
+                        y: item.y * canvasHeight / 100,
+                        radius: radius
+                    };
+                    canvascoors.push(circle);
+
+                    var rawC = {
+                        shape: 'Circle',
+                        x: item.x,
+                        y: item.y,
+                        x2: item.x2,
+                        y2: item.y2,
+                        startX: item.startX,
+                        startY: item.startY,
+                        radiusX: item.radiusX,
+                        radiusY: item.radiusY,
+                        markerName: item.markerName,
+                        tagName: item.tagName
+                    };
+                    bboxcoors.push(rawC);
+                }
+
+                if (item.shape === 'Triangle') {
+                    var triangle = {
+                        x: item.x * canvasWidth / 100,
+                        y: item.y * canvasHeight / 100,
+                        x2: item.x2 * canvasWidth / 100,
+                        y2: item.y2 * canvasHeight / 100,
+                        x3: item.x3 * canvasWidth / 100,
+                        y3: item.y3 * canvasHeight / 100
+                    };
+                    canvascoors.push(triangle);
+
+                    var raw2 = {
+                        shape: 'Triangle',
+                        x: item.x,
+                        y: item.y,
+                        x2: item.x2,
+                        y2: item.y2,
+                        x3: item.x3,
+                        y3: item.y3,
+                        markerName: item.markerName,
+                        tagName: item.tagName
+                    };
+                    bboxcoors.push(raw2);
+                }
+            })
+        }
+
         sessionStorage.setItem("markerArr", JSON.stringify(markerArr));
         sessionStorage.setItem("storedMarkerArr", JSON.stringify(markerArr));
         this.RectPoint = [...canvascoors];
@@ -812,11 +716,11 @@ export class AreaMarkingComponent implements OnInit {
     };
 
     triplineCondn() {
-        console.log("RectPoint: ", this.rawBbarray);
+
         if (this.rawBbarray != null) {
             var _self = this;
             this.rawBbarray.forEach(function (item) {
-                console.log("I m Tripline functn", item.shape);
+
                 if (item.shape === 'Rectangle' || item.shape === 'Triangle' || item.shape === 'Circle') {
                     _self.isTripline = false;
                 }
@@ -833,11 +737,11 @@ export class AreaMarkingComponent implements OnInit {
     }
 
     OtherShapes() {
-        console.log("RectPoint: ", this.rawBbarray);
+
         if (this.rawBbarray != null) {
             var _self = this;
             this.rawBbarray.forEach(function (item) {
-                console.log("I m shapes functn", item.shape);
+
                 if (item.shape === 'Line') {
                     _self.isTripline = false;
                 }
@@ -864,7 +768,7 @@ export class AreaMarkingComponent implements OnInit {
 
         if (this.markerArr === null || this.markerArr.length == 0) {
             this.markerArr = [];
-            console.log("null arr: ", this.markerArr);
+
             if (this.storedMarkerArr === null || this.storedMarkerArr.length == 0) {
                 isName = false;
                 storeName = false;
@@ -937,25 +841,6 @@ export class AreaMarkingComponent implements OnInit {
             .subscribe(
             res => {
                 this.acceptMarkerName();
-                // var arrIndex = this.rawBbarray.length - 1;
-                // var tempBbArr = this.rawBbarray[arrIndex];
-                // //tempBbArr.featureName = this.feature;
-                // tempBbArr.markerName = this.markerName;
-                // tempBbArr.tagName = this.TagName;
-                // if(this.ShapeName === 'Line'){
-                //     tempBbArr.direction = this.lineDir;
-                // }
-                // if (this.featureName === 'objectDetection') {
-                //     tempBbArr.detectionObjects = [this.objectType];
-                // }
-                // else {
-                //     tempBbArr.detectionObjects = ["person"];
-                // }
-                // this.rawBbarray[arrIndex] = tempBbArr;
-                // console.log(this.rawBbarray[arrIndex]);
-                // document.getElementById("closemarkerbtn").click();
-                // this.ShapeName = null;
-                // this.toastrService.Success("", "Successfully added area of interest");
             },
 
             err => {
@@ -982,7 +867,7 @@ export class AreaMarkingComponent implements OnInit {
             tempBbArr.detectionObjects = ["person"];
         }
         this.rawBbarray[arrIndex] = tempBbArr;
-        console.log(this.rawBbarray[arrIndex]);
+
         document.getElementById("closemarkerbtn").click();
         this.ShapeName = null;
         this.toastrService.Success("", "Successfully added area of interest");
@@ -1109,8 +994,18 @@ export class AreaMarkingComponent implements OnInit {
             res => {
                 console.log("get raw image : ", res);
 
+                var r1 = JSON.stringify(res);
+                var r2 = JSON.parse(r1);
+                if (r2.status == 200) {
+                    setTimeout(() => {
+                        this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
+                        this.goToCameras();
+                    }, 7000);
+                }
+
             },
             err => {
+                this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
                 console.log("error response", err);
             });
 
@@ -1120,6 +1015,16 @@ export class AreaMarkingComponent implements OnInit {
         this.ShapeName = shapeName;
         this.count = 0;
         this.drag = false;
+    }
+
+        goToCameras() {
+        this.navigationExtrasCancel = {
+            queryParams: {
+                webUrl: 'cancelCamera',
+                cameraType: this.filter
+            }
+        }
+        this.router.navigate(["/layout/devices/Cameras"], this.navigationExtrasCancel);
     }
 
     FeatureSelected(event) {
@@ -1138,35 +1043,18 @@ export class AreaMarkingComponent implements OnInit {
         }
     }
 
-    // FeatureSelectedMarker(event) {
-    //     this.featureSelectionMarkerIndex = this.compFeatureNames.indexOf(this.compFeatureNames.filter(item => item.featureName === this.feature)[0]);
-    //     this.objectType = this.compFeatureNames[this.featureSelectionMarkerIndex].objectSupported[0];
-    //     //sessionStorage.setItem("cloudServiceUrl", this.compFeatureNames[this.featureSelectionIndex].cloudServiceUrl);
-    // }
-
-    onSkip() {
-
-        this.navigationExtrasCancel = {
-            queryParams: {
-                webUrl: 'cancelCamera',
-                cameraType: this.filter
-            }
-        }
-        this.router.navigate(["/layout/devices/Cameras"], this.navigationExtrasCancel);
-    }
-
     goBackFromUpdate() {
         var addCam = JSON.parse(sessionStorage.getItem('camdetails'));
         let navigationBackFromUpdate: NavigationExtras =
             {
                 queryParams: {
                     webUrl: 'editCameraBack',
-                    streamingUrl: this.navArray.streamingUrl,
-                    deviceName: this.navArray.deviceName,
-                    deviceType: this.navArray.deviceType,
-                    floorMap: this.navArray.location,
-                    aggregatorName: this.navArray.aggregatorName,
-                    computeEngineName: this.navArray.computeEngineName,
+                    streamingUrl: this.navigationParam.streamingUrl,
+                    deviceName: this.navigationParam.deviceName,
+                    deviceType: this.navigationParam.deviceType,
+                    floorMap: this.navigationParam.location,
+                    aggregatorName: this.navigationParam.aggregatorName,
+                    computeEngineName: this.navigationParam.computeEngineName,
                     cameraType: this.filter
                 }
             }
@@ -1179,12 +1067,12 @@ export class AreaMarkingComponent implements OnInit {
             {
                 queryParams: {
                     webUrl: 'dashCameraBack',
-                    streamingUrl: this.navArray.streamingUrl,
-                    deviceName: this.navArray.deviceName,
-                    deviceType: this.navArray.deviceType,
-                    floorMap: this.navArray.location,
-                    aggregatorName: this.navArray.aggregatorName,
-                    computeEngineName: this.navArray.computeEngineName,
+                    streamingUrl: this.navigationParam.streamingUrl,
+                    deviceName: this.navigationParam.deviceName,
+                    deviceType: this.navigationParam.deviceType,
+                    floorMap: this.navigationParam.location,
+                    aggregatorName: this.navigationParam.aggregatorName,
+                    computeEngineName: this.navigationParam.computeEngineName,
                     cameraType: this.filter
                 }
             }
@@ -1192,17 +1080,18 @@ export class AreaMarkingComponent implements OnInit {
     }
 
     goBackFromSlider() {
+
         var addCam = JSON.parse(sessionStorage.getItem('camdetails'));
         let navigationBackFromSLider: NavigationExtras =
             {
                 queryParams: {
                     webUrl: 'areaMappingBack',
-                    streamingUrl: this.navArray.streamingUrl,
-                    deviceName: this.navArray.deviceName,
-                    deviceType: this.navArray.deviceType,
-                    floorMap: this.navArray.location,
-                    aggregatorName: this.navArray.aggregatorName,
-                    computeEngineName: this.navArray.computeEngineName
+                    streamingUrl: this.navigationParam.streamingUrl,
+                    deviceName: this.navigationParam.deviceName,
+                    deviceType: this.navigationParam.deviceType,
+                    floorMap: this.navigationParam.location,
+                    aggregatorName: this.navigationParam.aggregatorName,
+                    computeEngineName: this.navigationParam.computeEngineName
                 }
             }
         this.router.navigate(["/cameraMappingSlider"], navigationBackFromSLider);
@@ -1304,7 +1193,7 @@ export class AreaMarkingComponent implements OnInit {
             "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
             "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
-        console.log(vmData);
+
         this.http.put(this.vmUrl + '/cameras/aoi', vmData)
             .subscribe(
             res => {
@@ -1346,7 +1235,7 @@ export class AreaMarkingComponent implements OnInit {
 
     calculateCost(element) {
         var time = 0;
-        console.log("ELEMENT VALUE === ", element);
+
         if (element == 0) {
             this.retentionDuration = 1;
             //time = 1440;
@@ -1375,7 +1264,6 @@ export class AreaMarkingComponent implements OnInit {
 
         this.finalCost = 720 * this.oneHourCost;
         this.finalCost = Math.round(this.finalCost);
-        console.log(" FINAL COST :: ", this.finalCost);
         this.showCost = true;
     }
     startStreaming(flag) {
@@ -1423,7 +1311,7 @@ export class AreaMarkingComponent implements OnInit {
             "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
             "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
-        console.log("data to send:", vmData);
+
 
         var updateStatus = {};
         if (this.featureName == 'faceRecognition') {
@@ -1454,7 +1342,7 @@ export class AreaMarkingComponent implements OnInit {
 
         }
         else {
-              if (this.checkFlag == 0) {
+            if (this.checkFlag == 0) {
                 updateStatus = {
                     "status": 1,
                     "camId": sessionStorage.getItem('cameraId'),
@@ -1478,9 +1366,6 @@ export class AreaMarkingComponent implements OnInit {
                 };
             }
         }
-
-        console.log("updateStatus request : ", updateStatus);
-
 
         this.http.put(this.vmUrl + '/cameras/aoi', vmData)
             .subscribe(
@@ -1551,7 +1436,6 @@ export class AreaMarkingComponent implements OnInit {
             "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
             "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
-        console.log("data to send:", vmData);
 
         var updateStatus = {};
         if (this.featureName == 'faceRecognition') {

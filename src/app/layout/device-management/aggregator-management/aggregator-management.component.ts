@@ -34,11 +34,12 @@ export class AggregatorManagementComponent implements OnInit {
     aggregatorChannelId: string;
     selectedIndex: Number;
     public loading;
+    checkUpdate: boolean;
     constructor(private toastrService: ToastrService, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
         var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
-        console.log("@@@@@@@@@",session);
-        if(session != null){
-          this.vmUrl = session.vmUrl;
+        console.log("@@@@@@@@@", session);
+        if (session != null) {
+            this.vmUrl = session.vmUrl;
         }
         this.userId = localStorage.getItem('userId');
         this.aggregatorName = '';
@@ -159,27 +160,48 @@ export class AggregatorManagementComponent implements OnInit {
     }
 
     updateAggregator(aggregator) {
-        var updateAggregatorReq = {
-            'name': aggregator.name,
-            'location': aggregator.location
+        var check = false;
+        this.checkUpdate = false;
+        this.aggregators.forEach(function (item, index) {
+            if (item._id == aggregator._id) {
+                if ((item.deviceName != aggregator.name) || (item.location != aggregator.location)) {
+                    check = true;
+                }
+                else {
+                    check = false;
+                }
+            }
+        });
+        this.checkUpdate = check;
+        if (this.checkUpdate) {
+            var updateAggregatorReq = {
+                'name': aggregator.name,
+                'location': aggregator.location
+            }
+            console.log(updateAggregatorReq);
+            this.http.put(this.vmUrl + '/aggregators/' + aggregator._id, updateAggregatorReq)
+                .subscribe(
+                res => {
+                    this.checkUpdate = false;
+                    console.log("Aggregator updated");
+                    this.isAggregator = true;
+                    this.isEdit = false;
+                    this.aggrDisplay('', '');
+                    this.toastrService.Success('', 'Aggregator Details Updated Successfully');
+                },
+                err => {
+                    this.toastrService.Error('', 'Error Occurred While Updating Aggregator Details ');
+                    console.log("error response", err);
+                });
         }
-        console.log(updateAggregatorReq);
-        this.http.put(this.vmUrl + '/aggregators/' + aggregator._id, updateAggregatorReq)
-            .subscribe(
-            res => {
-                console.log("Aggregator updated");
-                this.isAggregator = true;
-                this.isEdit = false;
-                this.aggrDisplay('', '');
-            },
-            err => {
-                console.log("error response", err);
-            });
+        else {
+            this.toastrService.Warning('', 'No Parameter Updated');
+        }
     }
 
     whitelistAggregator(aggregator) {
         if (aggregator.status === 1) {
-            this.toastrService.Error("", "Can not whitelist manually added aggregator");
+            this.toastrService.Error("Can Not Whitelist Manually Added Aggregator");
             return;
         }
         var updateAggregatorReq = {

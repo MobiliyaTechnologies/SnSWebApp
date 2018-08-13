@@ -56,12 +56,12 @@ export class MultiscreenComponent implements OnInit {
       }
       _self.http.post<any>(_self.vmUrl + '/cameras/toggle/streaming', data)
         .subscribe(
-          res => {
-            console.log(res);
-          },
-          err => {
-            console.log("error response", err);
-          });
+        res => {
+          console.log(res);
+        },
+        err => {
+          console.log("error response", err);
+        });
     });
     this.socket.disconnect();
   }
@@ -98,44 +98,44 @@ export class MultiscreenComponent implements OnInit {
           }
           _self.http.post<any>(_self.vmUrl + '/cameras/toggle/streaming', data)
             .subscribe(
-              res => {
-                console.log(res);
-                _self.camId = item.camId;
-                $(document).ready(function () {
-                  //Toggle fullscreen
-                  $("#" + _self.camId + "_fullscreen").click(function (e) {
-                    e.preventDefault();
-                    var $this = $(this);
-            
-                    if ($this.children('i').hasClass('glyphicon-fullscreen')) {
-                      $this.children('i').removeClass('glyphicon-fullscreen');
-                      _self.markerCountArr = [];
-                      _self.fullScreenMode = true;
-                      $this.children('i').addClass('glyphicon-resize-small');
-                    }
-                    else if ($this.children('i').hasClass('glyphicon-resize-small')) {
-                      $this.children('i').removeClass('glyphicon-resize-small');
-                      _self.fullScreenMode = false;
-                      $this.children('i').addClass('glyphicon-fullscreen');
-                    }
-            
-                    $(this).closest('.imageDiv').toggleClass('panel-fullscreen');
-                    _self.clearAoi(_self.camId);
-                  });
+            res => {
+              console.log(res);
+              _self.camId = item.camId;
+              $(document).ready(function () {
+                //Toggle fullscreen
+                $("#" + _self.camId + "_fullscreen").click(function (e) {
+                  e.preventDefault();
+                  var $this = $(this);
+
+                  if ($this.children('i').hasClass('glyphicon-fullscreen')) {
+                    $this.children('i').removeClass('glyphicon-fullscreen');
+                    _self.markerCountArr = [];
+                    _self.fullScreenMode = true;
+                    $this.children('i').addClass('glyphicon-resize-small');
+                  }
+                  else if ($this.children('i').hasClass('glyphicon-resize-small')) {
+                    $this.children('i').removeClass('glyphicon-resize-small');
+                    _self.fullScreenMode = false;
+                    $this.children('i').addClass('glyphicon-fullscreen');
+                  }
+
+                  $(this).closest('.imageDiv').toggleClass('panel-fullscreen');
+                  _self.clearAoi(_self.camId);
                 });
-              },
-              err => {
-                console.log("error response", err);
               });
+            },
+            err => {
+              console.log("error response", err);
+            });
         });
       },
       err => {
         console.log("Error occured");
       }
-    );
+      );
   }
 
-  selectedScreen(camId){
+  selectedScreen(camId) {
     this.camId = camId;
   }
 
@@ -153,8 +153,29 @@ export class MultiscreenComponent implements OnInit {
         elements[0].parentNode.removeChild(elements[0]);
       }
     }
-    if (document.getElementsByClassName('info' +camId)) {
+        if (document.getElementsByClassName('userData' + camId)) {
+      var elements = document.getElementsByClassName('userData' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+    if (document.getElementsByClassName('info' + camId)) {
       var elements = document.getElementsByClassName('info' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+
+    if (document.getElementsByClassName('textRect' + camId)) {
+      var elements = document.getElementsByClassName('textRect' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+
+
+    if (document.getElementsByClassName('text' + camId)) {
+      var elements = document.getElementsByClassName('text' + camId);
       while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0]);
       }
@@ -167,7 +188,7 @@ export class MultiscreenComponent implements OnInit {
       if (data.message.camId === item.camId) {
         var image = document.getElementById(item.camId + '_img');
         image.setAttribute("src", data.message.imgBase64);
-        if(_self.camId === data.message.camId){
+        if (_self.camId === data.message.camId) {
           _self.markerCountArr = data.message.bboxResults;
         }
         _self.DisplayMarkers(data.message.bboxResults, data.message.camId);
@@ -411,8 +432,9 @@ export class MultiscreenComponent implements OnInit {
         elements[0].parentNode.removeChild(elements[0]);
       }
     }
+
     markerArr.forEach(function (item, index) {
-    
+
       console.log(item.markerName, item.count);
 
       var markerName = document.createElement('div');
@@ -420,7 +442,7 @@ export class MultiscreenComponent implements OnInit {
       markerName.className = 'markerOverlay' + camId;
       markerName.innerText = item.markerName + ": " + item.count;
       markerName.style.backgroundColor = 'white';
-      markerName.style.opacity = '0.3'+ '%';
+      markerName.style.opacity = '0.3' + '%';
       markerName.style.left = 3 + '%';
       markerName.style.top = 82 - (index * 8) + '%';
       markerName.style.color = 'red';
@@ -441,6 +463,14 @@ export class MultiscreenComponent implements OnInit {
         elements[0].parentNode.removeChild(elements[0]);
       }
     }
+
+    if (document.getElementsByClassName('userData' + camId)) {
+      var elements = document.getElementsByClassName('userData' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+
     if (document.getElementsByClassName('info' + camId)) {
       var elements = document.getElementsByClassName('info' + camId);
       while (elements.length > 0) {
@@ -448,46 +478,206 @@ export class MultiscreenComponent implements OnInit {
       }
     }
 
+    if (document.getElementsByClassName('textRect' + camId)) {
+      var elements = document.getElementsByClassName('textRect' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+
+
+    if (document.getElementsByClassName('text' + camId)) {
+      var elements = document.getElementsByClassName('text' + camId);
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
+      }
+    }
+
     if (resultBbox) {
       resultBbox.forEach(function (item) {
-        var mouse = {
-          x1: item.bboxes.x1 * widthRatio, //width
-          y1: item.bboxes.y1 * heightRatio, //height
-          startX: (item.bboxes.x2 - item.bboxes.x1) * widthRatio, //width x2-x1
-          startY: (item.bboxes.y2 - item.bboxes.y1) * heightRatio //height y2-y1
-        };
-        var parent = document.createElement('div');
-        parent.id = "info" + camId;
-        parent.className = "info" + camId;
 
-        var element = document.createElement('div');
-        element.id = "rect";
-        element.className = 'rectangle' + camId;
-        element.style.left = mouse.x1 + 'px';
-        element.style.top = mouse.y1 + 'px';
-        element.style.width = mouse.startX + 'px';
-        element.style.height = mouse.startY + 'px';
-        element.style.border = "2px solid red";
-        element.style.position = "absolute";         
-        parent.appendChild(element);
+        console.log("result ::::::::::: ", camId);
 
-        if (item.age || item.gender || item.userData || item.objectType) {
-          var userData = document.createElement('div');
-          userData.id = "userData";
-          userData.className = "userData";
-          if (item.userData == 'Unknown') {
-            userData.innerHTML = item.userData + (item.age ? item.age + ", " : "") + (item.gender ? item.gender : "") + (item.objectType ? item.objectType : "");
+        if (item.wordsArray) {
+
+          if (item.wordsArray.length != 0) {
+            item.wordsArray.forEach(function (wordItem) {
+              if (document.getElementsByClassName('info' + camId)) {
+                var elements = document.getElementsByClassName('info' + camId);
+                while (elements.length > 0) {
+                  elements[0].parentNode.removeChild(elements[0]);
+                }
+              }
+
+              if (document.getElementsByClassName('textRect' + camId)) {
+                var elements = document.getElementsByClassName('textRect' + camId);
+                while (elements.length > 0) {
+                  elements[0].parentNode.removeChild(elements[0]);
+                }
+              }
+
+
+              if (document.getElementsByClassName('text' + camId)) {
+                var elements = document.getElementsByClassName('text' + camId);
+                while (elements.length > 0) {
+                  elements[0].parentNode.removeChild(elements[0]);
+                }
+              }
+
+              var mouse = {
+                x1: parseInt(wordItem.boundingBox.x1) * widthRatio, //width
+                y1: parseInt(wordItem.boundingBox.y1) * heightRatio, //height
+                startX: (parseInt(wordItem.boundingBox.x2) - parseInt(wordItem.boundingBox.x1)) * widthRatio, //width x2-x1
+                startY: (parseInt(wordItem.boundingBox.y2) - parseInt(wordItem.boundingBox.y1)) * heightRatio //height y2-y1
+              };
+
+              var parent = document.createElement('div');
+              parent.id = "info";
+              parent.className = "info";
+
+              var element = document.createElement('div');
+              element.id = "textRect";
+              element.className = 'textRect' + camId;
+              element.style.left = mouse.x1 + 'px';
+              element.style.top = mouse.y1 + 'px';
+              element.style.width = mouse.startX + 'px';
+              element.style.height = mouse.startY + 'px';
+              element.style.border = "2px solid red";
+              element.style.position = "absolute";
+              parent.appendChild(element);
+
+              //  item.wordsArray.forEach(function (wordd) {
+              var text = document.createElement('div');
+              text.id = "text";
+              text.className = "text" + camId;
+              text.innerHTML = wordItem.word ? wordItem.word : "";
+              text.style.left = mouse.x1 + 'px';
+              text.style.top = mouse.y1 + mouse.startY + 'px';
+              text.style.fontSize = 26 + 'px';
+              text.style.color = 'red';
+              text.style.position = "absolute";
+              parent.appendChild(text);
+              //   })
+              canvas.appendChild(parent);
+            })
+          }
+        }
+        else if (item.line) {
+
+          var mouse = {
+            x1: parseInt(item.boundingBox.x1) * widthRatio, //width
+            y1: parseInt(item.boundingBox.y1) * heightRatio, //height
+            startX: parseInt(item.boundingBox.x2) * widthRatio, //width x2-x1
+            startY: parseInt(item.boundingBox.y2) * heightRatio //height y2-y1
+          };
+
+          if (item.length <= 5) {
+          //display text with rectangle
+          var parent = document.createElement('div');
+          parent.id = "info";
+          parent.className = "info";
+
+          var element = document.createElement('div');
+          element.id = "textRect";
+          element.className = 'textRect' + camId;
+          element.style.left = mouse.x1 + 'px';
+          element.style.top = mouse.y1 + 'px';
+          element.style.width = mouse.startX + 'px';
+          element.style.height = mouse.startY + 'px';
+          element.style.border = "2px solid red";
+          element.style.position = "absolute";
+          parent.appendChild(element);
+
+          var text = document.createElement('div');
+          text.id = "text";
+          text.className = "text" + camId;
+          text.innerHTML = item.line ? item.line : "";
+          text.style.left = mouse.x1 + 'px';
+          text.style.top = mouse.y1 + mouse.startY + 'px';
+          text.style.fontSize = 22 + 'px';
+          text.style.color = 'red';
+          text.style.position = "absolute";
+          parent.appendChild(text);
+          canvas.appendChild(parent);
+
           }
           else {
-            userData.innerHTML = (item.userData ? item.userData + ", " : "") + (item.age ? item.age + ", " : "") + (item.gender ? item.gender : "") + (item.objectType ? item.objectType : "");
+          // disply only rectangle
+
+          var parent = document.createElement('div');
+          parent.id = "info";
+          parent.className = "info";
+
+          var element = document.createElement('div');
+          element.id = "textRect";
+          element.className = 'textRect' + camId;
+          element.style.left = mouse.x1 + 'px';
+          element.style.top = mouse.y1 + 'px';
+          element.style.width = mouse.startX + 'px';
+          element.style.height = mouse.startY + 'px';
+          element.style.border = "2px solid red";
+          element.style.position = "absolute";
+          parent.appendChild(element);
+
+          var text = document.createElement('div');
+          text.id = "text";
+          text.className = "text" + camId;
+          text.innerHTML = item.line ? item.line : "";
+          text.style.left = mouse.x1 + 'px';
+          text.style.top = mouse.y1 + mouse.startY + 'px';
+          text.style.fontSize = 22 + 'px';
+          text.style.color = 'red';
+          text.style.position = "absolute";
+          parent.appendChild(text);
+          canvas.appendChild(parent);
+
           }
-          userData.style.left = mouse.x1 + 'px';
-          userData.style.top = mouse.y1 + mouse.startY + 'px';
-          userData.style.color = 'red';
-          userData.style.position = "absolute";
-          parent.appendChild(userData);
+
         }
-        canvas.appendChild(parent);
+        else {
+          console.log("REGION ============= ", item.region);
+          var mouse = {
+            x1: parseInt(item.bboxes.x1) * widthRatio, //width
+            y1: parseInt(item.bboxes.y1) * heightRatio, //height
+            startX: (parseInt(item.bboxes.x2) - parseInt(item.bboxes.x1)) * widthRatio, //width x2-x1
+            startY: (parseInt(item.bboxes.y2) - parseInt(item.bboxes.y1)) * heightRatio //height y2-y1
+          };
+
+          var parent = document.createElement('div');
+          parent.id = "info";
+          parent.className = "info";
+
+
+          var element = document.createElement('div');
+          element.id = "rect";
+          element.className = 'rectangle' + camId; 
+          element.style.left = mouse.x1 + 'px';
+          element.style.top = mouse.y1 + 'px';
+          element.style.width = mouse.startX + 'px';
+          element.style.height = mouse.startY + 'px';
+          element.style.border = "2px solid red";
+          element.style.position = "absolute";
+          parent.appendChild(element);
+
+
+          if (item.age || item.gender || item.userData || item.objectType) {
+            var userData = document.createElement('div');
+            userData.id = "userData";
+            userData.className = "userData" + camId;
+            if (item.userData == 'Unknown') {
+              userData.innerHTML = item.userData + (item.age ? item.age + ", " : "") + (item.gender ? item.gender : "") + (item.objectType ? item.objectType : "");
+            }
+            else {
+              userData.innerHTML = (item.userData ? item.userData + ", " : "") + (item.age ? item.age + ", " : "") + (item.gender ? item.gender : "");
+            }
+            userData.style.left = mouse.x1 + 'px';
+            userData.style.top = mouse.y1 + mouse.startY + 'px';
+            userData.style.color = 'red';
+            userData.style.position = "absolute";
+            parent.appendChild(userData);
+          }
+          canvas.appendChild(parent);
+        }
 
       });
     }

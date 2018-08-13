@@ -44,7 +44,8 @@ export class ConnectCameraComponent implements OnInit {
     rawImageArray: any[] = [];
     storeImage: Boolean;
     isSearchOn: boolean;
-    filter:any;
+    filter: any;
+    addCamResp: any;
 
     constructor(private toastrService: ToastrService, private route: ActivatedRoute, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
         this.isUpdate = false;
@@ -75,7 +76,7 @@ export class ConnectCameraComponent implements OnInit {
                 this.isUpdate = false;
                 this.isConnectCam = true;
                 this.filter = this.navigationParam.cameraType;
-                
+
             }
             else if (this.navigationParam.webUrl == 'dashCameraBack') {
                 this.isSearchOn = true;
@@ -94,7 +95,6 @@ export class ConnectCameraComponent implements OnInit {
             }
             else if (this.navigationParam.webUrl == 'editCamera') {
 
-                console.log("nav array update = ", this.navigationParam);
                 this.isSearchOn = true;
                 this.streamingUrl = this.navigationParam.streamingUrl;
                 this.deviceType = this.navigationParam.deviceType;
@@ -171,7 +171,6 @@ export class ConnectCameraComponent implements OnInit {
     }
 
     onChangeDeviceType(deviceType) {
-        console.log('dev :: ', deviceType);
 
         if (deviceType == '') {
             this.isSearchOn = false;
@@ -180,13 +179,12 @@ export class ConnectCameraComponent implements OnInit {
             this.isSearchOn = true;
         }
     }
-    socketConnection() {
 
-        console.log("inside socket true event");
+
+    socketConnection() {
         this.socket.on('rawImage/' + this.userId, (msg: any) => {
             this.previewSrc = '';
             var data = JSON.parse(msg.message);
-            console.log("raw image data: ", data);
             this.previewSrcFlag = true;
 
             if (this.storeImage === true) {
@@ -202,6 +200,7 @@ export class ConnectCameraComponent implements OnInit {
 
         this.socket.on('addCameraResponse/' + this.userId, (data: any) => {
             console.log("Add cam Response:");
+            this.addCamResp = data.message;
             console.log(data.message);
             if (data.message.status === 1) {
                 sessionStorage.setItem("cameraId", data.message.cameraId);
@@ -213,7 +212,6 @@ export class ConnectCameraComponent implements OnInit {
                     this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"]);
                 }
                 if (this.isConnectCam === true && this.isUpdate === false) {
-                    console.log("nav params: ", this.navigationExtrasConnect);
                     this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasConnect);
                 }
 
@@ -225,7 +223,6 @@ export class ConnectCameraComponent implements OnInit {
     };
 
     takePreview() {
-        // console.log("Streaming url:", this.streamingUrl);
         this.IsTakePreview = true;
         var isRawImageStored = false;
         var streamingUrl = this.streamingUrl;
@@ -251,7 +248,6 @@ export class ConnectCameraComponent implements OnInit {
                         }
                         else {
                             isRawImageStored = false;
-                            console.log(isRawImageStored);
                         }
                     }
                 })
@@ -280,7 +276,6 @@ export class ConnectCameraComponent implements OnInit {
             };
         }
         else {
-            console.log("inside else");
             previewData = {
                 "deviceType": this.deviceType,
                 "streamingUrl": this.streamingUrl,
@@ -289,11 +284,9 @@ export class ConnectCameraComponent implements OnInit {
                 "computeEngineId": this.compType
             };
         }
-        console.log("deviceType: ", previewData);
         this.http.post(this.vmUrl + '/cameras/raw', previewData)
             .subscribe(
             res => {
-                console.log("In take preview");
                 console.log(res);
             },
             err => {
@@ -302,20 +295,18 @@ export class ConnectCameraComponent implements OnInit {
     }
 
     getDetails() {
-        console.log("in add camera");
         this.computeengines = [];
         this.aggregators = [];
         this.http.get<any[]>(this.vmUrl + '/computeengines?status=0,2'
         ).subscribe(data => {
             console.log("Compute engines:", data);
             data.forEach(item => {
-                this.computeengines.push({ 'deviceName': item.name, 'deviceType': item.deviceType, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "jetsonCamFolderLocation": item.jetsonCamFolderLocation });
+                this.computeengines.push({ 'deviceName': item.name, 'deviceType': item.deviceType, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "jetsonCamFolderLocation": item.jetsonCamFolderLocation, "status": item.status });
             });
             if (this.isUpdate) {
                 this.compType = this.navigationParam.computeEngineName;
             }
             else {
-                console.log(this.isUpdate);
                 this.compType = this.computeengines[0]._id;
             }
         });
@@ -324,7 +315,7 @@ export class ConnectCameraComponent implements OnInit {
             console.log("Aggregators:", data);
             this.loading = false;
             data.forEach(item => {
-                this.aggregators.push({ 'deviceName': item.name, 'streamingUrl': item.url, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId });
+                this.aggregators.push({ 'deviceName': item.name, 'streamingUrl': item.url, "_id": item._id, "Ipaddress": item.ipAddress, "macId": item.macId, "status": item.status });
             });
             if (this.isUpdate) {
                 this.aggrType = this.navigationParam.aggregatorName;
@@ -338,7 +329,6 @@ export class ConnectCameraComponent implements OnInit {
     };
 
     PushCamData() {
-        console.log("in PushCamData");
         let imgId: NavigationExtras = {
             queryParams: {
                 step: 2
@@ -352,7 +342,7 @@ export class ConnectCameraComponent implements OnInit {
             streamingUrl: this.streamingUrl,
             location: this.floorMap
         };
-        console.log(data);
+
         var updateReq = {
             'status': 1
         };
@@ -373,8 +363,18 @@ export class ConnectCameraComponent implements OnInit {
                             .subscribe(
                             res => {
                                 this.loading = false;
-                                console.log("In push cam data", JSON.stringify(res));
                                 //this.router.navigate(["/cameraMappingSlider"], imgId);
+                                var r1 = JSON.stringify(res);
+                                var r2 = JSON.parse(r1);
+                                if (r2.status == 201) {
+
+                                    setTimeout(() => {
+                                        if (this.addCamResp == undefined) {
+                                            this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
+                                            this.goToHome();
+                                        }
+                                    }, 7000);
+                                }
                                 this.navigationExtrasPush = {
                                     queryParams: {
                                         deviceType: this.deviceType,
@@ -383,11 +383,12 @@ export class ConnectCameraComponent implements OnInit {
                                         computeEngineName: this.compType,
                                         streamingUrl: this.streamingUrl,
                                         location: this.floorMap,
-                                        cameraType:this.filter
+                                        cameraType: this.filter
 
                                         // webUrl:'cameraMapping'
                                     }
                                 }
+
                                 sessionStorage.setItem("camdetails", null);
                             },
                             err => {
@@ -396,23 +397,30 @@ export class ConnectCameraComponent implements OnInit {
                                     this.toastrService.Error("", "Device already present");
                                 }
                             });
-
                     },
                     err => {
                         console.log("error response", err);
-                        this.toastrService.Error("", "Compute engine failed to update");
+                        setTimeout(() => {
+                            this.loading = false;
+                            this.toastrService.Error("", "Compute engine falied to update");
+                            this.goToHome();
+                        }, 2000);
                     });
 
             },
             err => {
                 console.log("error response", err);
-                this.toastrService.Error("", "Aggregator failed to update");
+                setTimeout(() => {
+                    this.loading = false;
+                    this.toastrService.Error("", "Aggregator failed to update");
+                    this.goToHome();
+                }, 2000);
             });
 
     };
 
     connectCameraPushData() {
-        console.log("in ConnectCameraPushData");
+
         var data = {
             deviceType: this.deviceType,
             deviceName: this.deviceName,
@@ -421,172 +429,295 @@ export class ConnectCameraComponent implements OnInit {
             streamingUrl: this.streamingUrl,
             location: this.floorMap
         };
-        console.log(data);
+
+        var aggrStatus;
+        var agg = this.aggrType;
+        this.aggregators.forEach(function (item, index) {
+            if (agg === item._id) {
+                aggrStatus = item.status;
+            }
+        })
+
+        var compStatus;
+        var comp = this.compType;
+        this.computeengines.forEach(function (item, index) {
+            if (comp === item._id) {
+                compStatus = item.status;
+            }
+        })
 
 
-        var updateReq = {
-            'status': 1
+        if (aggrStatus == 0 || compStatus == 0) {
+            var updateReq = {
+                'status': 1
+            };
+
+            //Aggr update
+            this.loading = true;
+            this.http.put(this.vmUrl + '/aggregators/' + data.aggregatorId, updateReq)
+                .subscribe(
+                res1 => {
+                    console.log("Aggregator updated");
+                    //Comp update
+                    this.http.put(this.vmUrl + '/computeengines/' + data.computeEngineId, updateReq)
+                        .subscribe(
+                        res2 => {
+                            console.log("Compute engine updated");
+                            this.http.post(this.vmUrl + '/cameras', data
+                            )
+                                .subscribe(
+                                res3 => {
+                                    this.loading = false;
+
+                                    var r1 = JSON.stringify(res3);
+                                    var r2 = JSON.parse(r1);
+                                    if (r2.status == 201) {
+
+                                        setTimeout(() => {
+                                            if (this.addCamResp == undefined) {
+                                                this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
+                                                this.goToCameras();
+                                            }
+                                        }, 7000);
+                                    }
+                                    this.navigationExtrasConnect = {
+                                        queryParams: {
+                                            deviceType: this.deviceType,
+                                            deviceName: this.deviceName,
+                                            aggregatorName: this.aggrType,
+                                            computeEngineName: this.compType,
+                                            streamingUrl: this.streamingUrl,
+                                            location: this.floorMap,
+                                            webUrl: 'dashCamera',
+                                            cameraType: this.filter
+                                        }
+                                    }
+
+                                    sessionStorage.setItem("camdetails", null);
+                                    //this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasConnect);
+                                },
+                                err => {
+                                    this.loading = false;
+                                    if (err.status === 409) {
+                                        this.toastrService.Error("", "Device already present");
+                                    }
+                                });
+
+                        },
+                        err => {
+                            console.log("error response", err);
+                            setTimeout(() => {
+                                this.loading = false;
+                                this.toastrService.Error("", "Compute engine falied to update");
+                                this.goToCameras();
+                            }, 2000);
+                        });
+
+                },
+                err => {
+                    console.log("error response", err);
+                    setTimeout(() => {
+                        this.loading = false;
+                        this.toastrService.Error("", "Aggregator failed to update");
+                        this.goToCameras();
+                    }, 2000);
+                });
+        }
+        else {
+            this.http.post(this.vmUrl + '/cameras', data)
+                .subscribe(
+                res3 => {
+                    this.loading = false;
+
+                    var r1 = JSON.stringify(res3);
+                    var r2 = JSON.parse(r1);
+                    if (r2.status == 201) {
+
+                        setTimeout(() => {
+
+                            if (this.addCamResp == undefined) {
+                                this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
+                                this.goToCameras();
+                            }
+                        }, 7000);
+                    }
+
+                    this.navigationExtrasConnect = {
+                        queryParams: {
+                            deviceType: this.deviceType,
+                            deviceName: this.deviceName,
+                            aggregatorName: this.aggrType,
+                            computeEngineName: this.compType,
+                            streamingUrl: this.streamingUrl,
+                            location: this.floorMap,
+                            webUrl: 'dashCamera',
+                            cameraType: this.filter
+                        }
+                    }
+                    sessionStorage.setItem("camdetails", null);
+
+                    //this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasConnect);
+                },
+                err => {
+                    this.loading = false;
+                    if (err.status === 409) {
+                        this.toastrService.Error("", "Device already present");
+                    }
+                });
+        }
+
+    }
+    UpdatePushCamData() {
+        var data = {
+            deviceType: this.deviceType,
+            deviceName: this.deviceName,
+            aggregator: this.aggrType,
+            computeEngine: this.compType,
+            streamingUrl: this.streamingUrl,
+            location: this.floorMap
         };
 
-        //Aggr update
+        var cam = sessionStorage.getItem('cameraId');
+        var aggrStatus;
+        var agg = this.aggrType;
+        this.aggregators.forEach(function (item, index) {
+            if (agg === item._id) {
+                aggrStatus = item.status;
+            }
+        })
+
+        var compStatus;
+        var comp = this.compType;
+        this.computeengines.forEach(function (item, index) {
+            if (comp === item._id) {
+                compStatus = item.status;
+            }
+        })
+
         this.loading = true;
-        this.http.put(this.vmUrl + '/aggregators/' + data.aggregatorId, updateReq)
-            .subscribe(
-            res => {
-                console.log("Aggregator updated");
-                //Comp update
-                this.http.put(this.vmUrl + '/computeengines/' + data.computeEngineId, updateReq)
+
+        if ((data.streamingUrl != this.navigationParam.streamingUrl) || (data.deviceName != this.navigationParam.deviceName) || (data.deviceType != this.navigationParam.deviceType) || (data.aggregator != this.navigationParam.aggregatorName) || (data.computeEngine != this.navigationParam.computeEngineName) || (data.location != this.navigationParam.floorMap)) {
+
+            if (aggrStatus != 2 || compStatus != 2) {
+
+                var updateReq = {
+                    'status': 1
+                };
+                //Aggr update
+                this.http.put(this.vmUrl + '/aggregators/' + data.aggregator, updateReq)
                     .subscribe(
                     res => {
-                        console.log("Compute engine updated");
-                        this.http.post(this.vmUrl + '/cameras', data
-                        )
+
+                        //Comp update
+                        this.http.put(this.vmUrl + '/computeengines/' + data.computeEngine, updateReq)
                             .subscribe(
                             res => {
-                                this.loading = false;
-                                console.log("In push cam data", JSON.stringify(res));
-                                this.navigationExtrasConnect = {
-                                    queryParams: {
-                                        deviceType: this.deviceType,
-                                        deviceName: this.deviceName,
-                                        aggregatorName: this.aggrType,
-                                        computeEngineName: this.compType,
-                                        streamingUrl: this.streamingUrl,
-                                        location: this.floorMap,
-                                        webUrl: 'dashCamera',
-                                        cameraType: this.filter
+
+                                this.http.put(this.vmUrl + '/cameras/' + cam, data)
+                                    .subscribe(
+                                    res => {
+                                        this.loading = false;
+                                        this.navigationExtrasUpdate = {
+                                            queryParams: {
+                                                deviceType: this.deviceType,
+                                                deviceName: this.deviceName,
+                                                aggregatorName: this.aggrType,
+                                                computeEngineName: this.compType,
+                                                streamingUrl: this.streamingUrl,
+                                                location: this.floorMap,
+                                                webUrl: 'editCamera',
+                                                cameraType: this.filter
+                                            }
+                                        }
+
+                                        this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasUpdate);
+                                    },
+                                    err => {
+                                        this.loading = false;
+                                        if (err.status == 409) {
+                                            this.toastrService.Error("", err.data.deviceName + "already present");
+                                        }
                                     }
-                                }
-                                sessionStorage.setItem("camdetails", null);
-                                //this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasConnect);
+                                    );
+
                             },
                             err => {
-                                this.loading = false;
-                                if (err.status === 409) {
-                                    this.toastrService.Error("", "Device already present");
-                                }
+                                console.log("error response", err);
+                                setTimeout(() => {
+                                    this.loading = false;
+                                    this.toastrService.Error("", "Compute engine falied to update");
+                                    this.goToCameras();
+                                }, 2000);
                             });
 
                     },
                     err => {
                         console.log("error response", err);
-                        this.toastrService.Error("", "Compute engine failed to update");
+                        setTimeout(() => {
+                            this.loading = false;
+                            this.toastrService.Error("", "Aggregator failed to update");
+                            this.goToCameras();
+                        }, 2000);
                     });
 
-            },
-            err => {
-                console.log("error response", err);
-                this.toastrService.Error("", "Aggregator failed to update");
-            });
-    }
-    UpdatePushCamData() {
-        console.log("in UpdatePushCamData", this.deviceType);
-        var data = {
-            deviceType: this.deviceType,
-            deviceName: this.deviceName,
-            aggregator: this.aggrType,
-            computeEngine: this.compType,
-            streamingUrl: this.streamingUrl,
-            location: this.floorMap
-            
-        };
-        var cam = sessionStorage.getItem('cameraId');
 
+            }
+            else {
 
-        var updateReq = {
-            'status': 1
-        };
-
-        this.loading = true;
-        //Aggr update
-        this.http.put(this.vmUrl + '/aggregators/' + data.aggregator, updateReq)
-            .subscribe(
-            res => {
-                console.log("Aggregator updated");
-                //Comp update
-                this.http.put(this.vmUrl + '/computeengines/' + data.computeEngine, updateReq)
+                this.http.put(this.vmUrl + '/cameras/' + cam, data)
                     .subscribe(
                     res => {
-                        console.log("Compute engine updated");
-                        this.http.put(this.vmUrl + '/cameras/' + cam, data)
-                            .subscribe(
-                            res => {
-                                this.loading = false;
-                                this.navigationExtrasUpdate = {
-                                    queryParams: {
-                                        deviceType: this.deviceType,
-                                        deviceName: this.deviceName,
-                                        aggregatorName: this.aggrType,
-                                        computeEngineName: this.compType,
-                                        streamingUrl: this.streamingUrl,
-                                        location: this.floorMap,
-                                        webUrl: 'editCamera',
-                                        cameraType:this.filter
-                                    }
-                                }
-                                console.log("UPDATED NAVIGATION PARAMS", this.navigationExtrasUpdate);
-                                this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasUpdate);
-                            },
-                            err => {
-                                this.loading = false;
-                                if (err.status == 409) {
-                                    this.toastrService.Error("", err.data.deviceName + "already present");
-                                }
+                        this.loading = false;
+                        this.navigationExtrasUpdate = {
+                            queryParams: {
+                                deviceType: this.deviceType,
+                                deviceName: this.deviceName,
+                                aggregatorName: this.aggrType,
+                                computeEngineName: this.compType,
+                                streamingUrl: this.streamingUrl,
+                                location: this.floorMap,
+                                webUrl: 'editCamera',
+                                cameraType: this.filter
                             }
-                            );
+                        }
 
+                        this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasUpdate);
                     },
                     err => {
-                        console.log("error response", err);
-                        this.toastrService.Error("", "Compute engine falied to update");
-                    });
-
-            },
-            err => {
-                console.log("error response", err);
-                this.toastrService.Error("", "Aggregator failed to update");
-            });
-    }
-
-    UpdateSliderData() {
-        console.log("in update slider data", this.deviceType);
-        var data = {
-            deviceType: this.deviceType,
-            deviceName: this.deviceName,
-            aggregator: this.aggrType,
-            computeEngine: this.compType,
-            streamingUrl: this.streamingUrl,
-            location: this.floorMap
-        };
-        var cam = JSON.parse(sessionStorage.getItem('camdetails'));
-        this.http.put(this.vmUrl + '/cameras/' + cam._id, data)
-            .subscribe(
-            res => {
-                this.navigationExtrasUpdate = {
-                    queryParams: {
-                        deviceType: this.deviceType,
-                        deviceName: this.deviceName,
-                        aggregatorId: this.aggrType,
-                        computeEngineId: this.compType,
-                        streamingUrl: this.streamingUrl,
-                        location: this.floorMap,
-                        // webUrl: 'editCamera'
+                        this.loading = false;
+                        if (err.status == 409) {
+                            this.toastrService.Error("", err.data.deviceName + "already present");
+                        }
                     }
-                }
-                this.router.navigate(["/cameraMappingSlider"], this.navigationExtrasUpdate);
-            },
-            err => {
-                if (err.status == 409) {
-                    this.toastrService.Error("", err.data.deviceName + "already present");
+                    );
+            }
+        }
+        else {
+            // this.toastrService.Warning('', 'No Parameter Updated');
+            this.loading = false;
+            this.navigationExtrasUpdate = {
+                queryParams: {
+                    deviceType: this.deviceType,
+                    deviceName: this.deviceName,
+                    aggregatorName: this.aggrType,
+                    computeEngineName: this.compType,
+                    streamingUrl: this.streamingUrl,
+                    location: this.floorMap,
+                    webUrl: 'editCamera',
+                    cameraType: this.filter
                 }
             }
-            );
+
+            this.router.navigate(["/layout/deviceManagement/areaMarkingDashboard"], this.navigationExtrasUpdate);
+        }
     }
+
+
     goToCameras() {
         this.navigationExtrasCancel = {
-            queryParams : {
-                webUrl:'cancelCamera',
-                cameraType : this.filter
+            queryParams: {
+                webUrl: 'cancelCamera',
+                cameraType: this.filter
             }
         }
         this.router.navigate(["/layout/devices/Cameras"], this.navigationExtrasCancel);

@@ -67,7 +67,7 @@ export class FacedetectionComponent implements OnInit {
   userDetails: any;
   page: any;
   checkFlag: any;
-  checkFlag2:any;
+  checkFlag2: any;
 
   contacts: Array<Contact>;
   // @ViewChild('dynamic', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef
@@ -95,8 +95,7 @@ export class FacedetectionComponent implements OnInit {
   imgSrc: any;
   tempUserId: any;
   tempAge;
-  tempNotification;
-  tempNotification1;
+
   tempGender;
   tempUserId1: any;
   tempAge1;
@@ -110,7 +109,7 @@ export class FacedetectionComponent implements OnInit {
   userdata: string;
   identified;
   unidentified;
-  personName;
+
   gender;
   age;
   ageArray;
@@ -141,7 +140,7 @@ export class FacedetectionComponent implements OnInit {
   checked1: boolean;
   checked2: boolean;
   constructor(public pagerService: PagerService, private sanitizer: DomSanitizer, private toastrService: ToastrService, private route: ActivatedRoute, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer, private viewContainerRef: ViewContainerRef, private componentFactoryResolver: ComponentFactoryResolver) {
-     var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
+    var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
     if (session != null) {
       this.vmUrl = session.vmUrl;
     }
@@ -199,8 +198,6 @@ export class FacedetectionComponent implements OnInit {
     this.tempAge1 = '';
     this.tempGender1 = '';
     this.tempUserData = [];
-    this.tempNotification = false;
-    this.tempNotification1 = false;
     this.tempUserName = '';
     this.userDetails = [];
     //this.apiCount = 0;
@@ -232,8 +229,8 @@ export class FacedetectionComponent implements OnInit {
     document.getElementById("unidentifiedTab").className = "active";
     document.getElementById("unidentified").className += " active";
     this.checkFlag = 0;
-    this.checkFlag2=0;
-    
+    this.checkFlag2 = 0;
+
   }
 
 
@@ -284,8 +281,8 @@ export class FacedetectionComponent implements OnInit {
     }
   }
 
-    clickedTab2(tab) {
-      console.log("***** clicked TAB :: ",tab);
+  clickedTab2(tab) {
+    console.log("***** clicked TAB :: ", tab);
     if (tab == 0) {
       this.checkFlag2 = 0;
     }
@@ -422,8 +419,8 @@ export class FacedetectionComponent implements OnInit {
 
         console.log("this.totalItemsIdentified  : ", this.totalItemsIdentified);
         console.log("this.totalItemsUnidentified  : ", this.totalItemsUnidentified);
-         this.getIdentifiedDetails(0, 0);
-         this.getUnidentifiedDetails(0, 0);
+        this.getIdentifiedDetails(0, 0);
+        this.getUnidentifiedDetails(0, 0);
       },
       err => {
         this.loading = false;
@@ -433,7 +430,7 @@ export class FacedetectionComponent implements OnInit {
   }
 
 
-    getTotalCount() {
+  getTotalCount() {
     this.http.get<any[]>(this.vmUrl + '/faces/count',
     ).subscribe(
       res => {
@@ -537,7 +534,7 @@ export class FacedetectionComponent implements OnInit {
     this.tempGender = pdata.gender;
     this.tempUserData = pdata;
     this.tempUserName = pdata.userData;
-    (<HTMLInputElement>document.getElementById("userdataEdit")).value = this.tempUserData.userData;
+    (<HTMLInputElement>document.getElementById("userdataEdit")).value = this.tempUserName;
     if (pdata.flag == true) {
       this.toggleSwitch2 = true;
     }
@@ -547,17 +544,14 @@ export class FacedetectionComponent implements OnInit {
   }
 
   toggleSelect = function (event, i, flag) {
-    console.log("flag = ", flag, i);
+    //console.log("flag = ", flag, i);
     var length = 0;
     if (flag == 0) {
-
       if (this.checked2) {
         this.identifiedDetails.forEach(function (item, index) {
           if (i == index) {
             item.faces.forEach(function (item2) {
-              console.log("item2 before :", item2);
               item2.selected = event.target.checked;
-              console.log("item2 after:", item2);
               length++;
             });
           }
@@ -571,9 +565,7 @@ export class FacedetectionComponent implements OnInit {
         this.identifiedDetails.forEach(function (item, index) {
           if (i == index) {
             item.faces.forEach(function (item2) {
-              console.log("item2 :", item2);
               item2.selected = event.target.checked;
-              console.log("item2 :", item2);
               length++;
             });
           }
@@ -586,32 +578,32 @@ export class FacedetectionComponent implements OnInit {
       }
     }
     else if (flag == 1) {
+
       if (this.checked1) {
         this.unidentifiedDetails.forEach(function (item, index) {
           if (i == index) {
             item.faces.forEach(function (item2) {
-              console.log("item2 :", item2);
+              //console.log("item2 :", item2);
               item2.selected = event.target.checked;
               length++;
             });
           }
         });
-
         this.recordLengthUnknown = length;
         this.isAllUnknown = false;
         this.checked1 = false;
       }
       else {
+
         this.unidentifiedDetails.forEach(function (item, index) {
           if (i == index) {
             item.faces.forEach(function (item2) {
-              console.log("item2 :", item2);
+              //console.log("item2 :", item2);
               item2.selected = event.target.checked;
               length++;
             });
           }
         });
-
         this.recordLengthUnknown = length;
         this.isAllUnknown = true;
         this.checked1 = true;
@@ -622,7 +614,7 @@ export class FacedetectionComponent implements OnInit {
   selectAll = function (event, flag) {
     if (flag == 0) {
       if (this.checkSelect1) {
-        console.log("UNSELECT");
+
         this.checkSelect1 = false;
         this.isClearAllKnownChecked = false;
       }
@@ -634,7 +626,7 @@ export class FacedetectionComponent implements OnInit {
     else if (flag == 1) {
 
       if (this.checkSelect2) {
-        console.log("UNSELECT");
+
         this.isClearAllUnknownChecked = false;
         this.checkSelect2 = false;
       }
@@ -693,19 +685,17 @@ export class FacedetectionComponent implements OnInit {
 
   cropImages(details) {
 
-    console.log("CROP RESULT === ", details);
     details.forEach(item2 => {
-      console.log("Items : ", item2);
 
       item2.faces.forEach(item => {
         this.clear(item._id + "div");
         var id = document.getElementById(item._id);
-        console.log("iddd", id);
+        //console.log("iddd", id);
         if (id) {
           var element = document.createElement('div');
           element.id = item._id + "div";
           element.className = 'croppedImage';
-          console.log("##########", item.faceRectangle);
+          // console.log("##########", item.faceRectangle);
           element.style.width = '80px';
           element.style.height = '90px';
           element.style.backgroundImage = "url('" + item.imgUrl + "')";
@@ -718,13 +708,12 @@ export class FacedetectionComponent implements OnInit {
   }
 
   cropMe(item) {
-    console.log("CROP RESULT 2 === ", item);
     var id = document.getElementById(item._id);
-    console.log("iddd", id);
+    //console.log("iddd", id);
     if (id) {
       var element = document.createElement('div');
       element.id = item._id + "div";
-      console.log("##########", item.faceRectangle);
+      //console.log("##########", item.faceRectangle);
       element.style.width = '80px';
       element.style.height = '90px';
       element.style.backgroundImage = "url('" + item.imgUrl + "')";
@@ -818,16 +807,16 @@ export class FacedetectionComponent implements OnInit {
           temp = this.selectedKnownUsers;
         }
 
-        console.log("tempknown :: ", temp);
+
         this.http.delete(this.vmUrl + '/faces?faceIds=' + temp,
           { observe: 'response' }
         ).subscribe(
           (res: any) => {
             this.loading = false;
             this.socketConnection();
-            console.log("all records removed");
+            this.checked2 = false;
+            this.isAllKnown = false;
             this.toastrService.Success("", "All User Records Removed Successfully");
-            //this.ngOnInit2(1);
             this.getIdentifiedDetails(1, 0);
             this.getTotalCount();
           },
@@ -862,15 +851,14 @@ export class FacedetectionComponent implements OnInit {
           temp = this.selectedUnknownUsers;
         }
 
-        console.log("tempunKnown : ", temp);
         this.http.delete(this.vmUrl + '/faces?faceIds=' + temp,
           { observe: 'response' }
         ).subscribe(
           (res: any) => {
             this.loading = false;
+            this.isAllUnknown = false;
+            this.checked1 = false;
             this.toastrService.Success("", "All Unidentified Records Removed Successfully");
-            console.log("all record removeds => unknown : ", res);
-            //this.ngOnInit2(0);
             this.getUnidentifiedDetails(1, 0);
             this.getTotalCount();
           },
@@ -900,9 +888,7 @@ export class FacedetectionComponent implements OnInit {
       var length = 0;
       var url = '';
 
-      console.log("current page in identified = ", currentPage);
       if (flag == 0) {
-        console.log("current flag 0  in identified = ", flag);
         url = this.vmUrl + '/faces?status=1&filter=date&page=0&limit=10';
       }
       else if (flag == 1) {
@@ -912,21 +898,21 @@ export class FacedetectionComponent implements OnInit {
       this.http.get<any[]>(url,
       ).subscribe(
         res => {
-          console.log("** IDENTIFIED RESPONSE : ", res);
+
           var time: any;
           if (flag == 0) {
 
             this.apiCount++;
             if (this.apiCount == 2) {
               this.loading = false;
-              
+
             }
           }
           else if (flag == 1) {
             this.loading = false;
-            
+
           }
-          console.log("facedetails identified : ", res);
+
           if (res.length == 0) {
             //this.loading = false;
             this.isPaginationIdentified = false;
@@ -975,19 +961,19 @@ export class FacedetectionComponent implements OnInit {
         },
         err => {
           //this.loading = false;
-          
+
           this.isIdentifiedPresent = false;
           this.isDataNotAvailable1 = true;
           if (err.status == 404) {
             this.apiCount++;
             if (this.apiCount == 2) {
               this.loading = false;
-              
+
             }
           }
           else {
             this.loading = false;
-            
+
           }
         }
         );
@@ -1010,7 +996,6 @@ export class FacedetectionComponent implements OnInit {
       var check = 0;
       var itemId = 0;
 
-      console.log("current page in unidentified = ", currentPage);
       if (flag == 0) {
         url = this.vmUrl + '/faces?status=0&filter=date&page=0&limit=10';
       }
@@ -1021,8 +1006,6 @@ export class FacedetectionComponent implements OnInit {
       this.http.get<any[]>(url,
       ).subscribe(
         res => {
-          console.log("## UNDENTIFIED RESPONSE : ", res);
-
 
           this.unidentifiedDetails = [];
           var time: any;
@@ -1030,17 +1013,14 @@ export class FacedetectionComponent implements OnInit {
             this.apiCount++;
             if (this.apiCount == 2) {
               this.loading = false;
-              
-
             }
 
           }
           else if (flag == 1) {
             this.loading = false;
-            
+
           }
 
-          console.log("facedetails getunidentified : ", res);
           if (res.length == 0) {
             //this.loading = false;
             this.isPaginationUnidentified = false;
@@ -1066,7 +1046,6 @@ export class FacedetectionComponent implements OnInit {
               }
             });
             this.unidentifiedDetails = unIdentifieds;
-            console.log("unidentified final :", this.unidentifiedDetails);
 
             this.checkFlag = 0;
             this.allItemsUnidentified = this.unidentifiedDetails;
@@ -1077,7 +1056,7 @@ export class FacedetectionComponent implements OnInit {
 
             //this.unidentified = res.length;
             this.unidentified = this.totalItemsUnidentified;
-            console.log("LENGTH OF unidentified : ", this.unidentified);
+
             if (res.length != 0) {
               this.isUnidentifiedPresent = true;
             }
@@ -1092,20 +1071,20 @@ export class FacedetectionComponent implements OnInit {
         },
         err => {
           //this.loading = false;
-          
+
           this.isUnidentifiedPresent = false;
           this.isDataNotAvailable = true;
           if (err.status == 404) {
             this.apiCount++;
             if (this.apiCount == 2) {
               this.loading = false;
-              
+
             }
 
           }
           else {
             this.loading = false;
-          
+
           }
         }
         );
@@ -1115,8 +1094,6 @@ export class FacedetectionComponent implements OnInit {
 
 
   setPage(page: number, flag) {
-    console.log("FLAG HERE :: ", this.checkFlag);
-    console.log("PAGE HERE :: ", page);
 
     this.checked1 = false;
     this.checked2 = false;
@@ -1218,7 +1195,6 @@ export class FacedetectionComponent implements OnInit {
       ).subscribe(
         (res: any) => {
 
-          console.log("record removed");
           this.socketConnection();
           this.toastrService.Success("", "User Record Removed Successfully");
           //this.ngOnInit2(1);
@@ -1240,7 +1216,7 @@ export class FacedetectionComponent implements OnInit {
         { observe: 'response' }
       ).subscribe(
         (res: any) => {
-          console.log("record removed unknown : ", res);
+
           this.socketConnection();
           this.toastrService.Success("", "User Record Removed Successfully");
           //this.ngOnInit2(0);
@@ -1268,41 +1244,46 @@ export class FacedetectionComponent implements OnInit {
     }
 
     if (this.tempGender == '') {
-      this.tempGender = 'Male';
+      this.tempGender = 'male';
     }
 
-    if (this.userdata == '') {
-      this.userdata = this.tempUserName;
+    if (this.tempUserName == '') {
+      this.tempUserName = this.tempUserData.userData;
     }
 
-    console.log("$$$ toggleSwitch2 : ", this.toggleSwitch2);
-    var updateData =
-      {
-        "age": this.tempAge,
-        "gender": this.tempGender,
-        "userData": this.userdata,
-        "flag": this.toggleSwitch2
-      }
+    if ((this.tempUserData.userData != this.tempUserName) || (this.tempUserData.gender != this.tempGender) || (this.tempUserData.age != this.tempAge) || (this.tempUserData.flag != this.toggleSwitch2)) {
 
-    console.log("updateData :: ", updateData);
+      this.loading = false;
+      var updateData =
+        {
+          "age": this.tempAge,
+          "gender": this.tempGender,
+          "userData": this.tempUserName,
+          "flag": this.toggleSwitch2
+        }
 
-    this.http.put(this.vmUrl + '/faces/' + this.tempUserId, updateData)
-      .subscribe(
-      res => {
-        this.toggleSwitch2 = false;
-        this.loading = false;
-        this.toastrService.Success("", "User Record Updated Successfully");
-        console.log("updated res : ", res);
-        this.getIdentifiedDetails(1, this.currentPage);
-        this.userdata = '';
-      },
-      err => {
-        this.toggleSwitch2 = false;
-        this.loading = false;
-        this.toastrService.Error("", "Error Occurred While Updating User Record");
-        this.userdata = '';
-        console.log("error response", err);
-      });
+      this.http.put(this.vmUrl + '/faces/' + this.tempUserId, updateData)
+        .subscribe(
+        res => {
+          this.toggleSwitch2 = false;
+          this.loading = false;
+          this.toastrService.Success("", "User Record Updated Successfully");
+
+          this.getIdentifiedDetails(1, this.currentPage);
+          this.userdata = '';
+        },
+        err => {
+          this.toggleSwitch2 = false;
+          this.loading = false;
+          this.toastrService.Error("", "Error Occurred While Updating User Record");
+          this.userdata = '';
+          console.log("error response", err);
+        });
+    }
+    else {
+      this.loading = false;
+      this.toastrService.Warning('', 'No Parameter Updated');
+    }
   }
 
 
@@ -1324,21 +1305,19 @@ export class FacedetectionComponent implements OnInit {
         .subscribe(
         res => {
 
-          console.log("res count : ", res.count);
+
           if (res.count != 0) {
             this.isPaginationHistory = true;
           }
-          console.log("count is :: ", res.count);
           this.totalItemsHistory = res.count;
 
           this.historyAll = [];
-          console.log("view : ", this.userDetails.userData);
           this.loading = true;
           this.http.get<any[]>(url2, ).subscribe(
             res => {
               var time: any;
               this.loading = false;
-              console.log("history response all : ", res.length);
+
               if (res.length != 0) {
                 this.isDataNotAvailable2 = false;
                 res.forEach(item => {
@@ -1371,7 +1350,7 @@ export class FacedetectionComponent implements OnInit {
   viewHistory(pdata) {
 
     //document.getElementById("timelineTab").className = "active";
-    console.log(" ***** checkFlag2checkFlag2 :: ",this.checkFlag2);
+
     this.clickedTab2(0);
 
     //this.checkFlag2 = 0;
@@ -1379,7 +1358,7 @@ export class FacedetectionComponent implements OnInit {
     this.currentPageHistory = 0;
     this.maxSizeHistory = 15;
     this.showReport(pdata);
-    console.log("pdata is :: ", pdata);
+
     this.userDetails = pdata;
 
     this.http.get<any>(this.vmUrl + '/users/history/count?persistedFaceId=' + pdata.persistedFaceId, )
@@ -1393,16 +1372,16 @@ export class FacedetectionComponent implements OnInit {
         else {
           this.isDataNotAvailable2 = true;
         }
-        console.log("count is :: ", res.count);
+
         this.totalItemsHistory = res.count;
 
         this.historyAll = [];
-        console.log("view : ", pdata.userData);
+
         this.http.get<any[]>(this.vmUrl + '/users/history?persistedFaceId=' + pdata.persistedFaceId + '&page=0&limit=' + this.maxSizeHistory, ).subscribe(
           res => {
             this.isDataNotAvailable2 = false;
             var time: any;
-            console.log("history response all : ", res.length);
+
             if (res.length != 0) {
               this.isDataNotAvailable2 = false;
 

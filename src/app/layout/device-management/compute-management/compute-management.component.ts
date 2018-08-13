@@ -33,12 +33,17 @@ export class ComputeManagementComponent implements OnInit {
     computeEngineType: string;
     selectedIndex: Number;
     public loading;
+    toggleValue: any;
+    isChecked: boolean;
+    isPricingEnabled: boolean;
+    tierName: any;
+    isTier: boolean;
 
-    constructor(private toastrService: ToastrService,public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
+    constructor(private toastrService: ToastrService, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
         var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
-        console.log("@@@@@@@@@",session);
-        if(session != null){
-          this.vmUrl = session.vmUrl;
+        console.log("@@@@@@@@@", session);
+        if (session != null) {
+            this.vmUrl = session.vmUrl;
         }
         this.userId = localStorage.getItem('userId');
         this.computeEngineName = '';
@@ -47,15 +52,23 @@ export class ComputeManagementComponent implements OnInit {
         this.computeEngineIpAddress = '';
         this.computeEngineType = '';
         this.selectedIndex = 0;
+        this.isPricingEnabled = false;
     }
 
     ngOnInit() {
         this.loading = true;
         this.substring = '';
         this.isEdit = false;
+
+        this.toggleValue = 0;
         sessionStorage.setItem("selectedCamIndex", "0");
         sessionStorage.setItem("selectedAggrIndex", "0");
         this.computeEngineDisplay(this.substring, '');
+    }
+
+    onChangeSwitch(event) {
+        this.isChecked = !this.isChecked;
+        console.log("Pricing Tier : ", this.isChecked);
     }
 
     computeEngineDisplay(substring, filter) {
@@ -71,7 +84,7 @@ export class ComputeManagementComponent implements OnInit {
                 this.isComputeEngine = true;
             }
             else {
-                
+
                 this.isComputeEngine = true;
                 data.forEach(item => {
                     this.computeengines.push({
@@ -79,19 +92,38 @@ export class ComputeManagementComponent implements OnInit {
                         , "deviceType": item.deviceType
                     });
                 });
-                this.getComputeEngineDetails(data[0],0);
+                this.getComputeEngineDetails(data[0], 0);
             }
         });
     }
 
-    getComputeEngineDetails(computeengine,index) {
+    getComputeEngineDetails(computeengine, index) {
         var computeEngineId = computeengine._id;
         this.isEdit = false;
         this.http.get<any>(this.vmUrl + '/computeengines/' + computeEngineId,
         ).subscribe(data => {
             console.log("data:", data);
             this.computeEngineDetails = data;
+            this.isChecked = data.tier;
+            this.isTier = data.tier;
+            var isCCE = data.isCloudCompute;
             this.selectedIndex = index;
+
+            if (isCCE) {
+                this.isPricingEnabled = true;
+                if (this.isChecked == false) {
+                    console.log("BASIC");
+                    this.tierName = 'Basic';
+                }
+                else {
+                    console.log("ADVANCE");
+                    this.tierName = 'Advance';
+                }
+            }
+            else {
+                this.isPricingEnabled = false;
+            }
+
         });
     }
 
@@ -105,7 +137,7 @@ export class ComputeManagementComponent implements OnInit {
         this.computeEngineName = '';
         this.computeEngineMacId = '';
         this.computeEngineIpAddress = '';
-        this.computeEngineLocation ='';
+        this.computeEngineLocation = '';
         this.computeEngineType = '';
         this.isComputeEngine = false;
     }
@@ -159,24 +191,56 @@ export class ComputeManagementComponent implements OnInit {
     }
 
     updateComputeEngine(computeengine) {
-        var updateComputeEngineReq = {
-            'name': computeengine.name,
-            'location': computeengine.location
+        var check = false;
+        var compname, comploc;
+
+        this.computeengines.forEach(function (item, index) {
+            if (item._id == computeengine._id) {
+                compname = item.deviceName;
+                comploc = item.location;
+            }
+        });
+
+        if ((compname != computeengine.name) || (comploc != computeengine.location) || (this.isTier != this.isChecked)) {
+            check = true;
         }
-        this.http.put(this.vmUrl + '/computeengines/' + computeengine._id, updateComputeEngineReq)
-            .subscribe(
-            res => {
-                this.isComputeEngine = true;
-                this.isEdit = false;
-                this.computeEngineDisplay('', '');
-            },
-            err => {
-                console.log("error response", err);
-            });
+        else {
+            check = false;
+        }
+        if (check) {
+            var tierValue = 0;
+            if (this.isChecked == true) {
+                tierValue = 1;
+            }
+            else {
+                tierValue = 0;
+            }
+
+            var updateComputeEngineReq = {
+                'name': computeengine.name,
+                'location': computeengine.location,
+                'tier': tierValue
+            }
+            this.http.put(this.vmUrl + '/computeengines/' + computeengine._id, updateComputeEngineReq)
+                .subscribe(
+                res => {
+                    this.isComputeEngine = true;
+                    this.isEdit = false;
+                    this.computeEngineDisplay('', '');
+                    this.toastrService.Success('', 'Compute Engine Details Updated Successfully');
+                },
+                err => {
+                    this.toastrService.Error('', 'Error Occurred While Updating Compute Engine Details ');
+                    console.log("error response", err);
+                });
+        }
+        else {
+            this.toastrService.Warning('', 'No Parameter Updated');
+        }
     }
     whitelistComputeEngine(computeengine) {
-        if(computeengine.status === 1){
-            this.toastrService.Error("Can not whitelist manually added compute engine");
+        if (computeengine.status === 1) {
+            this.toastrService.Error("Can Not Whitelist Manually Added Compute Engine");
             return;
         }
         var updateComputeEngineReq = {
@@ -194,17 +258,17 @@ export class ComputeManagementComponent implements OnInit {
             });
     }
 
-    deleteCompEngine(computeengine){
+    deleteCompEngine(computeengine) {
         console.log(computeengine);
         this.http.delete(this.vmUrl + '/computeengines/' + computeengine._id)
-        .subscribe(
-        res => {
-            this.toastrService.Success("","Compute engine deleted successfully");
-            this.computeEngineDisplay('', '');
-        },
-        err => {
-            this.toastrService.Error("","Failed to delete the compute engine");
-            console.log("error response", err);
-        });
+            .subscribe(
+            res => {
+                this.toastrService.Success("", "Compute engine deleted successfully");
+                this.computeEngineDisplay('', '');
+            },
+            err => {
+                this.toastrService.Error("", "Failed to delete the compute engine");
+                console.log("error response", err);
+            });
     }
 }

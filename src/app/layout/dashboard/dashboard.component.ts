@@ -791,7 +791,7 @@ export class DashboardComponent implements OnInit {
     this.selectedItems = items;
     this.cameraliveflag = true;
     this.dropdownList = [];
-    this.sendCameraforLivedata(this.selectedItems);
+    this.sendCameraforLivedata(this.selectedItems,1);
     if (this.markercamfilter === "camera") {
       this.http.get<any[]>(this.vmUrl + '/cameras?status=1',
       ).subscribe(
@@ -847,7 +847,7 @@ export class DashboardComponent implements OnInit {
   onChangelivefields(searchfield) {
     this.dropdownList = [];
     this.selectedItems = [];
-    this.sendCameraforLivedata(this.selectedItems);
+    this.sendCameraforLivedata(this.selectedItems,0);
     // if (this.myChartlive != null) {
     //   console.log("after:", this.myChartlive);
     //   this.myChartlive.destroy();
@@ -880,7 +880,7 @@ export class DashboardComponent implements OnInit {
         );
     }
     if (searchfield === "marker") {
-      this.http.get<any[]>(this.vmUrl + '/cameras/bboxes',
+      this.http.get<any[]>(this.vmUrl + '/cameras/bboxes?status=1',
       ).subscribe(
         res => {
           console.log("Marker names:",res);
@@ -904,19 +904,19 @@ export class DashboardComponent implements OnInit {
 
   onItemSelect(item: any) {
     console.log(this.selectedItems);
-    this.sendCameraforLivedata(this.selectedItems);
+    this.sendCameraforLivedata(this.selectedItems,1);
   }
   OnItemDeSelect(item: any) {
     console.log(this.selectedItems);
-    this.sendCameraforLivedata(this.selectedItems);
+    this.sendCameraforLivedata(this.selectedItems,1);
   }
   onSelectAll(items: any) {
     console.log(items);
-    this.sendCameraforLivedata(items);
+    this.sendCameraforLivedata(items,1);
   }
   onDeSelectAll(items: any) {
     console.log("#########",items);
-    this.sendCameraforLivedata(items);
+    this.sendCameraforLivedata(items,1);
   }
 
   getRandomColor() {
@@ -975,10 +975,10 @@ export class DashboardComponent implements OnInit {
     console.log(this.outerDatasetliveChart);
   }
 
-  sendCameraforLivedata(selectedItems) {
+  sendCameraforLivedata(selectedItems,camFlag) {
     var requestdata = {
       cameras: selectedItems,
-      flag: 1,
+      flag: camFlag,
       filter: this.markercamfilter
     }
     console.log(requestdata);

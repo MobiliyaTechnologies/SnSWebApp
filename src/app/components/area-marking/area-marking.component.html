@@ -62,7 +62,7 @@
       <button type="submit" *ngIf="!isOnboarding" data-dismiss="modal" data-toggle="modal" data-target="#retentionModal" (click)="clearFlag()" class="btn btn-primary">START STREAMING</button>
       <button type="submit" *ngIf="isOnboarding" data-dismiss="modal" data-toggle="modal" data-target="#retentionModal2" (click)="clearFlag()" class="btn btn-primary">START STREAMING</button>
 
-      <button type="submit" (click)="onSkip()" class="btn btn-primary">CANCEL</button>
+      <button type="submit" (click)="goToCameras()" class="btn btn-primary">CANCEL</button>
       <button type="submit" id="markerbtn" class="btn btn-primary" *ngIf="!(ShapeName === null)" data-toggle="modal" data-target="#myModal"
         style="visibility:hidden;">opp</button>
     </div>

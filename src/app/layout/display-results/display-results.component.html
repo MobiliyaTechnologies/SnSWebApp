@@ -15,8 +15,8 @@
                 </div>
                 <br>
                 <div class="live-image-div" id="canvas">
-                    <div class="middle" style="z-index:10;" >
-                        <a  id="panel-fullscreen"  class="fullscreen-logo" role="button" title="Toggle fullscreen"><i class="glyphicon glyphicon-fullscreen"></i></a>
+                    <div class="middle" style="z-index:10;">
+                        <a id="panel-fullscreen" class="fullscreen-logo" role="button" title="Toggle fullscreen"><i class="glyphicon glyphicon-fullscreen"></i></a>
                         <div class="middle1" style="z-index:5;" *ngIf="fullScreenMode">
                             <div class="col-sm-12">
                                 <div class="col-sm-12">
@@ -48,6 +48,7 @@
                         <h5>Information</h5>
                     </div>
                 </div>
+                <br>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
@@ -62,42 +63,44 @@
                         </div>
                     </div>
                 </div>
-                <br>
-                <br>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
                             <div class="row textHeadings">
                                 <div *ngIf="feature == 'humanDetection' else nodisplay">
                                     <p>
-                                        <b>PERSON COUNT</b>
+                                        <b>PERSON COUNT :   {{result}}</b>
                                     </p>
                                 </div>
                                 <div *ngIf="feature == 'objectDetection' else nodisplay">
                                     <p>
-                                        <b>OBJECT COUNT</b>
+                                        <b>OBJECT COUNT :   {{result}} </b>
                                     </p>
                                 </div>
                                 <div *ngIf="(feature == 'faceDetection' || feature == 'faceRecognition') else nodisplay">
                                     <p>
-                                        <b>FACE COUNT</b>
+                                        <b>FACE COUNT :   {{result}}</b>
                                     </p>
                                 </div>
                                 <div *ngIf="feature == 'TripLine' else nodisplay">
                                     <p>
-                                        <b>TRIPLINE COUNT</b>
+                                        <b>TRIPLINE COUNT :   {{result}}</b> 
+                                    </p>
+                                </div>
+                                <div *ngIf="feature == 'textRecognition' else nodisplay">
+                                    <p>
+                                        <b>TEXT COUNT :   {{result}}</b>
                                     </p>
                                 </div>
                                 <ng-template #nodisplay></ng-template>
                             </div>
-                            <div class="row textValues">
-                                {{result}}
-                            </div>
+                            <!-- <div class="row textValues">
+                              
+                            </div> -->
                         </div>
                     </div>
                 </div>
-                <br>
-                <br>
+        
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
@@ -114,11 +117,31 @@
                         </div>
                     </div>
                 </div>
-                <br>
+
                 <br>
                 <button type="submit" class="btn btn-primary" style="width:100%;" (click)="stopCamera()">
                     STOP STREAMING
                 </button>
+                <br>
+                <br>
+                <div class="row" *ngIf="isText">
+                    <div class="col-sm-12">
+                        <div class="col-sm-12">
+                            <div class="row textHeadings">
+                                <p>
+                                    <b>DETECTED TEXT </b>
+                                </p>
+                            </div>
+
+                            <div class="scrollable">
+                                <div *ngFor="let text of bbox;let i=index">
+                                    <b> [ {{i}} ] </b> {{ text.line }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

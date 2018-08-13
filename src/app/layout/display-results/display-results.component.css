@@ -101,3 +101,8 @@
       color:rgba(255,0,0,1);
       /* opacity:1; */
   }
+
+  .scrollable{
+    overflow-y: scroll;
+    height:25vh;
+}
