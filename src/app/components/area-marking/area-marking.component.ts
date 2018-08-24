@@ -82,6 +82,7 @@ export class AreaMarkingComponent implements OnInit {
     videoName: string;
     oneHourCost: any;
     checkFlag: any;
+    timeoutVar: any;
 
 
     constructor(private toastrService: ToastrService, public router: Router, private http: HttpClient, public domSanitizer: DomSanitizer, private zone: NgZone, private route: ActivatedRoute) {
@@ -166,6 +167,8 @@ export class AreaMarkingComponent implements OnInit {
 
     socketConnection() {
         this.socket.on('rawImage/' + this.userId, (msg: any) => {
+            clearTimeout(this.timeoutVar);
+            console.log('TIMEOUT CLEARED : ', this.timeoutVar);
             console.log("socketRESPONSE: ", JSON.parse(msg.message));
             //this.previewSrc = data.configData.rawImgSrc;
             var data = JSON.parse(msg.message);
@@ -952,7 +955,7 @@ export class AreaMarkingComponent implements OnInit {
             });
 
             this.compFeatureNames = data.detectionAlgorithms;
-            sessionStorage.setItem("cloudServiceUrl", data.detectionAlgorithms[0].cloudServiceUrl);
+            // sessionStorage.setItem("cloudServiceUrl", data.detectionAlgorithms[0].cloudServiceUrl);
             this.featureName = data.detectionAlgorithms[0].featureName;
 
             this.apiCount++;
@@ -997,10 +1000,8 @@ export class AreaMarkingComponent implements OnInit {
                 var r1 = JSON.stringify(res);
                 var r2 = JSON.parse(r1);
                 if (r2.status == 200) {
-                    setTimeout(() => {
-                        this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
-                        this.goToCameras();
-                    }, 7000);
+                    this.waitForRawImage();
+                    console.log("TIMEOUT STARTED");
                 }
 
             },
@@ -1011,13 +1012,20 @@ export class AreaMarkingComponent implements OnInit {
 
     }
 
+    waitForRawImage() {
+        this.timeoutVar = setTimeout(() => {
+            this.toastrService.Error("", "Couldn't get Reference Image !!! Please check after sometime.");
+            this.goToCameras();
+        }, 30000);
+    }
+
     shapeSelected(shapeName) {
         this.ShapeName = shapeName;
         this.count = 0;
         this.drag = false;
     }
 
-        goToCameras() {
+    goToCameras() {
         this.navigationExtrasCancel = {
             queryParams: {
                 webUrl: 'cancelCamera',
@@ -1032,7 +1040,7 @@ export class AreaMarkingComponent implements OnInit {
             this.toastrService.Info("", "Selected Feature Name will be reflected in all the areas of interest drawn!");
         }
         this.featureSelectionIndex = this.compFeatureNames.indexOf(this.compFeatureNames.filter(item => item.featureName === this.featureName)[0]);
-        sessionStorage.setItem("cloudServiceUrl", this.compFeatureNames[this.featureSelectionIndex].cloudServiceUrl);
+        // sessionStorage.setItem("cloudServiceUrl", this.compFeatureNames[this.featureSelectionIndex].cloudServiceUrl);
         sessionStorage.setItem("computeEngineFps", this.compFeatureNames[this.featureSelectionIndex].fps);
         if (this.featureName === 'objectDetection') {
             this.objects = this.compFeatureNames[this.featureSelectionIndex].objectSupported;
@@ -1136,8 +1144,8 @@ export class AreaMarkingComponent implements OnInit {
             "deviceName": this.navigationParam.deviceName,
             "aggregatorId": this.navigationParam.aggregatorName,
             "computeEngineId": this.navigationParam.computeEngineName,
-            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
-            "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
+            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation')
+            // "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
         this.http.put(this.vmUrl + '/cameras/aoi', vmData)
             .subscribe(
@@ -1190,8 +1198,8 @@ export class AreaMarkingComponent implements OnInit {
             "deviceName": this.navigationParam.deviceName,
             "aggregatorId": this.navigationParam.aggregatorName,
             "computeEngineId": this.navigationParam.computeEngineName,
-            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
-            "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
+            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation')
+            // "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
 
         this.http.put(this.vmUrl + '/cameras/aoi', vmData)
@@ -1308,8 +1316,8 @@ export class AreaMarkingComponent implements OnInit {
             "deviceName": this.navigationParam.deviceName,
             "aggregatorId": this.navigationParam.aggregatorName,
             "computeEngineId": this.navigationParam.computeEngineName,
-            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
-            "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
+            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation')
+            // "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
 
 
@@ -1433,8 +1441,8 @@ export class AreaMarkingComponent implements OnInit {
             "deviceName": this.navigationParam.deviceName,
             "aggregatorId": this.navigationParam.aggregatorName,
             "computeEngineId": this.navigationParam.computeEngineName,
-            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation'),
-            "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
+            "jetsonCamFolderLocation": sessionStorage.getItem('jetsonCamFolderLocation')
+            // "cloudServiceUrl": sessionStorage.getItem('cloudServiceUrl')
         };
 
         var updateStatus = {};

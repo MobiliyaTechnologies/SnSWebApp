@@ -52,7 +52,8 @@ export class MultiscreenComponent implements OnInit {
       var data = {
         "flag": 0,
         "camId": item.camId,
-        "aggregatorId": item.aggregatorId
+        "aggregatorId": item.aggregatorId,
+        "computeEngineId": item.computeEngineId
       }
       _self.http.post<any>(_self.vmUrl + '/cameras/toggle/streaming', data)
         .subscribe(
@@ -94,7 +95,8 @@ export class MultiscreenComponent implements OnInit {
           var data = {
             "flag": 1,
             "camId": item.camId,
-            "aggregatorId": item.aggregatorId
+            "aggregatorId": item.aggregatorId,
+            "computeEngineId": item.computeEngineId
           }
           _self.http.post<any>(_self.vmUrl + '/cameras/toggle/streaming', data)
             .subscribe(
@@ -187,7 +189,7 @@ export class MultiscreenComponent implements OnInit {
     this.liveCameras.forEach(function (item) {
       if (data.message.camId === item.camId) {
         var image = document.getElementById(item.camId + '_img');
-        image.setAttribute("src", data.message.imgBase64);
+        image.setAttribute("src", data.message.imgBase64+"?"+new Date());
         if (_self.camId === data.message.camId) {
           _self.markerCountArr = data.message.bboxResults;
         }

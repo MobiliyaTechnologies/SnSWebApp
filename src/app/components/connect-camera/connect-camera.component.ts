@@ -46,6 +46,7 @@ export class ConnectCameraComponent implements OnInit {
     isSearchOn: boolean;
     filter: any;
     addCamResp: any;
+    timeoutVar: any;
 
     constructor(private toastrService: ToastrService, private route: ActivatedRoute, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
         this.isUpdate = false;
@@ -183,6 +184,8 @@ export class ConnectCameraComponent implements OnInit {
 
     socketConnection() {
         this.socket.on('rawImage/' + this.userId, (msg: any) => {
+            clearTimeout(this.timeoutVar);
+            console.log("TIMEOUT CLEARED");
             this.previewSrc = '';
             var data = JSON.parse(msg.message);
             this.previewSrcFlag = true;
@@ -199,6 +202,8 @@ export class ConnectCameraComponent implements OnInit {
         });
 
         this.socket.on('addCameraResponse/' + this.userId, (data: any) => {
+            clearTimeout(this.timeoutVar);
+            console.log("TIMEOUT CLEARED");
             console.log("Add cam Response:");
             this.addCamResp = data.message;
             console.log(data.message);
@@ -367,13 +372,8 @@ export class ConnectCameraComponent implements OnInit {
                                 var r1 = JSON.stringify(res);
                                 var r2 = JSON.parse(r1);
                                 if (r2.status == 201) {
-
-                                    setTimeout(() => {
-                                        if (this.addCamResp == undefined) {
-                                            this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
-                                            this.goToHome();
-                                        }
-                                    }, 7000);
+                                    this.waitForRawImage();
+                                    console.log("TIMEOUT STARTED");
                                 }
                                 this.navigationExtrasPush = {
                                     queryParams: {
@@ -403,7 +403,7 @@ export class ConnectCameraComponent implements OnInit {
                         setTimeout(() => {
                             this.loading = false;
                             this.toastrService.Error("", "Compute engine falied to update");
-                            this.goToHome();
+                            this.goToCameras();
                         }, 2000);
                     });
 
@@ -413,11 +413,18 @@ export class ConnectCameraComponent implements OnInit {
                 setTimeout(() => {
                     this.loading = false;
                     this.toastrService.Error("", "Aggregator failed to update");
-                    this.goToHome();
+                    this.goToCameras();
                 }, 2000);
             });
 
     };
+
+    waitForRawImage() {
+        this.timeoutVar = setTimeout(() => {
+            this.toastrService.Error("", "Couldn't get Reference Image !!! Please check after sometime.");
+            this.goToCameras();
+        }, 30000);
+    }
 
     connectCameraPushData() {
 
@@ -473,12 +480,8 @@ export class ConnectCameraComponent implements OnInit {
                                     var r2 = JSON.parse(r1);
                                     if (r2.status == 201) {
 
-                                        setTimeout(() => {
-                                            if (this.addCamResp == undefined) {
-                                                this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
-                                                this.goToCameras();
-                                            }
-                                        }, 7000);
+                                        this.waitForRawImage();
+                                        console.log("TIMEOUT STARTED");
                                     }
                                     this.navigationExtrasConnect = {
                                         queryParams: {
@@ -532,14 +535,8 @@ export class ConnectCameraComponent implements OnInit {
                     var r1 = JSON.stringify(res3);
                     var r2 = JSON.parse(r1);
                     if (r2.status == 201) {
-
-                        setTimeout(() => {
-
-                            if (this.addCamResp == undefined) {
-                                this.toastrService.Error("", "Something went wrong!!! Please check after sometime.");
-                                this.goToCameras();
-                            }
-                        }, 7000);
+                        this.waitForRawImage();
+                        console.log("TIMEOUT STARTED");
                     }
 
                     this.navigationExtrasConnect = {

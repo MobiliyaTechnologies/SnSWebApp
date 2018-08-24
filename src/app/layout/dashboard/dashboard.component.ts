@@ -617,7 +617,8 @@ export class DashboardComponent implements OnInit {
         var data = {
           "flag": 1,
           "camId": cam._id,
-          "aggregatorId": res.aggregator._id
+          "aggregatorId": res.aggregator._id,
+          "computeEngineId": res.computeEngine._id
         }
         console.log("data: play cam: ", data);
         this.http.post<any>(this.vmUrl + '/cameras/toggle/streaming', data)

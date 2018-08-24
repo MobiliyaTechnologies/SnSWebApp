@@ -35,7 +35,8 @@
                             </div>
                         </div>
                     </div>
-                    <img class="live-image" id="live_image" [src]="domSanitizer.bypassSecurityTrustUrl(imgSrc)">
+                    <img #img src="{{imgSrc}}" style='display: none;'/> 
+                    <canvas #myChart width="2000" height="500" class="live-image" ></canvas>
                 </div>
             </div>
 

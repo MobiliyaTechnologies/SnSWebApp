@@ -658,7 +658,7 @@ export class CameraManagementComponent implements OnInit {
             this.frameHeight = CamData.frameHeight;
             this.featureName = CamData.feature;
             this.bboxes = CamData.boundingBox;
-            this.cloudServiceUrl = sessionStorage.getItem('cloudServiceUrl');
+            // this.cloudServiceUrl = sessionStorage.getItem('cloudServiceUrl');
 
             if (CamData.boundingBox.length == 0) {
                 this.featureName = CamData.computeEngine.detectionAlgorithms[0].featureName;
@@ -668,7 +668,7 @@ export class CameraManagementComponent implements OnInit {
                 this.frameHeight = 100;
                 imageHeight = 720;
                 imageWidth = 1280;
-                this.cloudServiceUrl = CamData.computeEngine.detectionAlgorithms[0].cloudServiceUrl;
+                // this.cloudServiceUrl = CamData.computeEngine.detectionAlgorithms[0].cloudServiceUrl;
             }
 
             var updateStatus = {};
@@ -741,8 +741,8 @@ export class CameraManagementComponent implements OnInit {
                 "deviceName": CamData.deviceName,
                 "aggregatorId": CamData.aggregator._id,
                 "computeEngineId": CamData.computeEngine._id,
-                "jetsonCamFolderLocation": CamData.computeEngine.jetsonCamFolderLocation,
-                "cloudServiceUrl": this.cloudServiceUrl
+                "jetsonCamFolderLocation": CamData.computeEngine.jetsonCamFolderLocation
+                // "cloudServiceUrl": this.cloudServiceUrl
             };
             console.log("data to send:", vmData);
 

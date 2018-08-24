@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, NgModule } from '@angular/core';
+import { Component, OnInit, NgZone, NgModule, ElementRef, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
@@ -18,6 +18,11 @@ declare var $: any;
     styleUrls: ['./display-results.component.css']
 })
 export class DisplayResultsComponent implements OnInit {
+    
+    @ViewChild("myChart") myChart: ElementRef;
+    @ViewChild('img') img: ElementRef
+    private context: CanvasRenderingContext2D;
+    private element: HTMLImageElement;
     vmUrl: string;
     imgSrc: string;
     result: string;
@@ -42,9 +47,10 @@ export class DisplayResultsComponent implements OnInit {
     markerCount: any;
     featureName: string;
     feature: string;
-    fullScreenMode: boolean = false;
+    fullScreenMode:boolean = false;
     boundingBoxResult:any;
     isText:boolean;
+    
     constructor(private route: ActivatedRoute, public router: Router, private http: HttpClient, private zone: NgZone, public domSanitizer: DomSanitizer) {
         var session = JSON.parse(localStorage.getItem('sessionConfiguration'));
         console.log("@@@@@@@@@", session);
@@ -73,6 +79,11 @@ export class DisplayResultsComponent implements OnInit {
         this.isPauseCam = false;
         this.isAddTag = false;
         this.isText = false;
+    }
+
+    ngAfterViewInit() {
+        // this.context = this.visualization.nativeElement.getContext("2d");
+        this.element = this.img.nativeElement;
     }
 
     ngOnInit() {
@@ -106,22 +117,26 @@ export class DisplayResultsComponent implements OnInit {
         var data = {
             "flag": 0,
             "camId": cam._id,
-            "aggregatorId": cam.aggregator._id
-        }
-
-        this.http.post<any>(this.vmUrl + '/cameras/toggle/streaming', data)
-            .subscribe(
-            res => {
-                console.log(res);
-
-            },
-            err => {
-                console.log("error response", err);
-            });
-        this.socket.disconnect();
+            "aggregatorId": cam.aggregator._id,
+            "computeEngineId": cam.computeEngine._id
+          }
+          
+          this.http.post<any>(this.vmUrl + '/cameras/toggle/streaming', data)
+          .subscribe(
+          res => {
+            console.log(res);
+            
+          },
+          err => {
+            console.log("error response", err);
+          });
+         this.socket.disconnect();
     }
+    
+    
     socketConnection() {
         this.socket.on('liveImage', (data: any) => {
+            //console.log('liveImage', data.message)
             if (document.getElementsByClassName('userData')) {
                 var elements = document.getElementsByClassName('userData');
                 while (elements.length > 0) {
@@ -136,7 +151,7 @@ export class DisplayResultsComponent implements OnInit {
                 }
             }
 
-            console.log("img response:", data);
+            //console.log("img response:", data);
 
             this.isAddTag = false;
             var index = sessionStorage.getItem('cameraId');
@@ -145,25 +160,27 @@ export class DisplayResultsComponent implements OnInit {
                 this.isPauseCam = true;
             else if (this.featureName == 'objectDetection')
                 this.isPauseCam = false;
-
+            
             if (index === data.message.camId) {
-                console.log("liveimageresponse", data);
+                var img = new Image();
+                console.log("liveimageresponse", data.message);
                 this.feature = data.message.feature;
-                this.imgSrc = data.message.imgBase64;
-
-
-            if(data.message.feature == "textRecognition")
-            {
-                console.log("isTextisTextisText : ",this.isText);
-                this.isText = true;
-            }
-            else
+                this.imgSrc = data.message.imgBase64+"?"+new Date();
+                if(data.message.feature == "textRecognition")
                 {
-                    this.isText = false;
-                    console.log("isTextisTextisText FALSE : ",this.isText);
+                    this.isText = true;
                 }
-
-                this.liveImage(data.message.bbox, data.message.totalResult, data.message.bboxResults);
+                else
+                    {
+                        this.isText = false;
+                    }
+                    this.context = this.myChart.nativeElement.getContext("2d");
+                    img.src = data.message.imgBase64+"?"+new Date();
+                
+                    img.onload = () => {
+                        this.context.drawImage(this.element, 0, 0, 2000, 500);
+                        this.liveImage(data.message.bbox, data.message.totalResult, data.message.bboxResults);
+                    };
             }
         });
     };
@@ -224,7 +241,7 @@ export class DisplayResultsComponent implements OnInit {
 
         this.markerDisplay = bboxResults;
         //this.boundingBoxResult = bboxResults.boundingBoxes;
-        console.log("BBB = ",this.bbox);
+        //console.log("BBB = ",this.bbox);
         // if(this.bbox.length != 0 )
         //     {
         //         this.isText = true;
@@ -485,7 +502,7 @@ export class DisplayResultsComponent implements OnInit {
             //     }
             // }
 
-
+            //bbox draw
             if (this.bbox) {
                 this.bbox.forEach(function (item,i) {
                     if (item.wordsArray) {
@@ -620,7 +637,6 @@ export class DisplayResultsComponent implements OnInit {
                         element.style.border = "2px solid red";
                         element.style.position = "absolute";
                         parent.appendChild(element);
-
 
                         if (item.age || item.gender || item.userData || item.objectType) {
                             var userData = document.createElement('div');
